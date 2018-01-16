@@ -18,7 +18,7 @@ if (!fs.existsSync('./tosabbreviator.json')) {
 let config = JSON.parse(fs.readFileSync('./tosabbreviator.json'));
 let directly = false;
 
-let version = '0.1.1'
+let version = '0.2.0'
 let writtenFor = 8298;
 
 let savelink = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Town of Salem\\XMLData\\Localization\\en-US\\"
@@ -101,8 +101,8 @@ let changes = { // Case sensitive
 	"role blocked": "rb'd",
 	"role block": "rb",
 	"Role block": "RB",
-	"BG/GF": "bg/gf",
-};
+	"BG/GF": "bg/gf"
+}
 let changes2 = { // Not case sensitive
 	"not suspicious":"ns/gf",
 	"is a member of the Mafia": "is in the Mafia",
@@ -110,6 +110,8 @@ let changes2 = { // Not case sensitive
 	"a member of the %role%": "the %role%",
 	"nursed you back to health": "healed you",
 	"nursed them back to health": "healed them",
+	"fought off your attacker": "protected you", // new
+	"fought off their attacker": "protected them", // new
 	"their defense was too strong": "they were immune",
 	"your defense was too strong": "you were immune",
 	" you can feel your heart breaking.": "",
@@ -129,8 +131,8 @@ let changes2 = { // Not case sensitive
 	" in gas": "",
 	"gasoline": "gas",
 	" to another location": "",
-	"!": ".",
-};
+	"!": "."
+}
 let forcechanges = {
 	"0": "Result: Mafia",
 	"1": "Result: ns/gf",
@@ -153,8 +155,8 @@ let forcechanges = {
 	"Coven31": "Results: Vig/Vet/Mafioso/Pirate/Ambusher",
 	"Coven32": "Results: Med/Janitor/Retri/Necro/Trapper",
 	"Coven33": "Results: Surv/VH/Medusa/Psy",
-	"Coven37": "Results: Framer/Vamp/Jest/Hex Master (possibly framed)",
-};
+	"Coven37": "Results: Framer/Vamp/Jest/Hex Master (possibly framed)"
+}
 let investResults = {
 	"Escort": "Escort/Trans/Consort (Hypno)",
 	"Transporter": "Escort/Trans/Consort (Hypno)",
@@ -205,8 +207,8 @@ let investResults = {
 	"Forger": "LO/Forger/Witch (CL)",
 	"Witch": "LO/Forger/Witch",
 	"CovenLeader": "LO/Forger/CL",
-	"Juggernaut": "N/A",
-};
+	"Juggernaut": "N/A"
+}
 let abbreviations = {
 	"Escort": "N/A",
 	"Transporter": "Trans",
@@ -257,8 +259,8 @@ let abbreviations = {
 	"Forger": "N/A",
 	"Witch": "N/A",
 	"CovenLeader": "CL",
-	"Juggernaut": "Jugg",
-};
+	"Juggernaut": "Jugg"
+}
 let uniques = {
 	"Jailor": true,
 	"Mayor": true,
@@ -277,8 +279,8 @@ let uniques = {
 	"Medusa": true,
 	"PotionMaster": true,
 	"Poisoner": true,
-	"HexMaster": true,
-};
+	"HexMaster": true
+}
 let priority = {
 	"Escort": "2",
 	"Transporter": "1",
@@ -329,8 +331,8 @@ let priority = {
 	"Forger": "3",
 	"Witch": "2",
 	"CovenLeader": "2",
-	"Juggernaut": "5",
-};
+	"Juggernaut": "5"
+}
 let traits = {
 	"Escort": ["RB Immunity"],
 	"Transporter": ["RB Immunity", "Control Immunity"],
@@ -381,8 +383,8 @@ let traits = {
 	"Forger": [],
 	"Witch": ["RB Immunity", "Detection Immunity"],
 	"CovenLeader": ["RB Immunity"],
-	"Juggernaut": ["Detection Immunity"],
-};
+	"Juggernaut": ["Detection Immunity"]
+}
 let guichanges = {
 	"Innocent": "inno",
 	"JanitorKnowsRole": "Your target's role was",
@@ -401,8 +403,8 @@ let guichanges = {
 	"UILanguageLabel": "Language",
 	"SpyNightAbilityMessageMafia": "Mafia visits: %name%",
 	"SpyNightAbilityMessageCoven": "Coven visits: %name%",
-	"Youngest": "New",
-};
+	"Youngest": "New"
+}
 let dangerwords = ["You did not perform your day ability.", "You did not perform your night ability.", "haunt", "consume", "control", "lynch", "staked", "die", "shot", "douse", "set on fire", "murder", "attack", "kill", "execute", "suicide", "guilt", "mafia", "serial killer", "bm", "rb", "immune", "transport"];
 
 let doneCount = 0;
@@ -426,25 +428,41 @@ function revertConv() {
 	if (!fs.existsSync(savelink + 'Game.BACKUP') || !fs.existsSync(savelink + 'Gui.BACKUP')) {
 		console.log('Backup files are not present. You can do this in Steam; right-click Town of Salem\nin your games menu, click "Properties," click on the tab "Local Files," and click "Verify Integrity of Game Files."');
 	} else {
+		console.log("Restoring backups..");
 		fs.unlinkSync(savelink + 'Game.xml');
-		fs.unlinkSync(savelink + 'Gui.xml');
 		fs.copySync(path.resolve(__dirname, (savelink + 'Game.BACKUP')), savelink + 'Game.xml');
-		fs.copySync(path.resolve(__dirname, (savelink + 'Gui.BACKUP')), savelink + 'Gui.xml');
 		fs.unlinkSync(savelink + 'Game.BACKUP');
+		console.log("1 out of 3 files completed.");
+
+		fs.unlinkSync(savelink + 'Gui.xml');
+		fs.copySync(path.resolve(__dirname, (savelink + 'Gui.BACKUP')), savelink + 'Gui.xml');
 		fs.unlinkSync(savelink + 'Gui.BACKUP');
-		console.log('Successfully reverted all conversions done.');
+		console.log("2 out of 3 files completed.");
+
+		if (fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
+			fs.unlinkSync(savelink + '../GameLanguage.xml');
+			fs.copySync(path.resolve(__dirname, (savelink + '../GameLanguage.BACKUP')), savelink + '../GameLanguage.xml');
+			fs.unlinkSync(savelink + '../GameLanguage.BACKUP');
+		}
+		console.log("3 out of 3 files completed.");
+		console.log('Successfully restored all backups.');
 	}
 }
 function doConversion() {
-	if (!fs.existsSync(savelink + 'Game.BACKUP')) {
+	if (!fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
 		console.log("Backing up files..");
 		fs.copySync(path.resolve(__dirname, (savelink + 'Game.xml')), savelink + 'Game.BACKUP');
+		console.log("1 out of 3 files completed.");
 		fs.copySync(path.resolve(__dirname, (savelink + 'Gui.xml')), savelink + 'Gui.BACKUP');
-		console.log("Finished.\n");
+		console.log("2 out of 3 files completed.");
+		fs.copySync(path.resolve(__dirname, (savelink + '../GameLanguage.xml')), savelink + '../GameLanguage.BACKUP');
+		console.log("3 out of 3 files completed.");
+		console.log("Finished backing up files.\n");
 	}
 	console.log("Beginning conversion.");
 	lower(savelink + 'Game.BACKUP');
 	lower(savelink + 'Gui.BACKUP');
+	lower(savelink + '../GameLanguage.BACKUP');
 }
 function doVersionCheck(cb) {
 	let latestN = 0;
@@ -486,24 +504,24 @@ function lower(pp) {
 						result["Entries"]["Entry"][i]["Text"][0] = forcechanges[result["Entries"]["Entry"][i]["id"][0]];
 						if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Result: ") != -1) || (result["Entries"]["Entry"][i]["Text"][0].indexOf("Results: ") != -1)) {
 							result["Entries"]["Entry"][i]["Color"][0] = "0x0090EB";
-						};
+						}
 					} else if (result["Entries"]["Entry"][i]["id"][0].substring(0,10) == "SpyResult_") {
 						var id = result["Entries"]["Entry"][i]["id"][0].substring(10);
 						for (var j in result["Entries"]["Entry"]) {
 							if (result["Entries"]["Entry"][j]["id"][0] == id) {
 								id = j;
 								break;
-							};
-						};
+							}
+						}
 						result["Entries"]["Entry"][i]["Text"][0] = "On target: " + result["Entries"]["Entry"][id]["Text"][0].replace(/On target\: /g, "");
 						result["Entries"]["Entry"][i]["Color"][0] = "0x0090EB";
 					} else if (result["Entries"]["Entry"][i]["Text"]) {
 						for (var j in changes) {
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "g"), changes[j]);
-						};
+						}
 						for (var j in changes2) {
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "gi"), changes2[j]);
-						};
+						}
 						if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Your target") !== -1) && (result["Entries"]["Entry"][i]["Text"][0].indexOf("They must be") !== -1)) {
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(/.+(\They must be a )/g, "Result: ").replace(/.+(\They must be an )/g, "Result: ");
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].substring(0, result["Entries"]["Entry"][i]["Text"][0].length-1);
@@ -512,8 +530,8 @@ function lower(pp) {
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace("Your target could be a ", "Results: ").replace("Your target could be an ", "Results: ").replace(/\, /g, "/").replace(/or /g, "");
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].substring(0, result["Entries"]["Entry"][i]["Text"][0].length-1);
 							result["Entries"]["Entry"][i]["Color"][0] = "0x0090EB";
-						};
-					};
+						}
+					}
 											
 					/*
 					0x0090EB (Dark Cyan) = Investigative result
@@ -529,17 +547,17 @@ function lower(pp) {
 									result["Entries"]["Entry"][i]["Color"] = "0xFF0000";
 									danger = true;
 									break;
-								};
+								}
 							}
 							
 							if (result["Entries"]["Entry"][i]["id"][0] == "102") {
 								result["Entries"]["Entry"][i]["Color"] = "0xFF0000";
 							} else if (!danger) {
 								result["Entries"]["Entry"][i]["Color"] = "0x808080";
-							};
-						};
-					};
-				};
+							}
+						}
+					}
+				}
 			} else if (fn == "Gui.BACKUP") {
 				for (var i in result["Entries"]["Entry"]) {
 					if (result["Entries"]["Entry"][i]["Text"] && result["Entries"]["Entry"][i]["id"]) {
@@ -557,31 +575,35 @@ function lower(pp) {
 							}
 							for (var j in traits[role]) {
 								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0] + "\n- " + traits[role][j];
-							};
+							}
 						} else {
 							for (var j in changes) {
 								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "g"), changes[j]);
-							};
+							}
 							for (var j in changes2) {
 								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "gi"), changes2[j]);
-							};
-						};
-					};
-				};
-			};
+							}
+						}
+					}
+				}
+			} else if (fn == "GameLanguage.BACKUP") {
+				result["Entries"]["Entry"][1]["Text"][0] = "English (Abbr.)";
+				result["Entries"]["Entry"][1]["Description"][0] = "English (Abbr.)";
+				fn = "../" + fn;
+			}
 			var builder = new xml2js.Builder({"headless": true});
 			var xml = builder.buildObject(result);
 			fs.writeFile(savelink + (fn.replace('BACKUP', 'xml')), '<?xml version="1.0" encoding="utf-8"?>\n<!-- Parsed by TOSAbbreviator v' + version + ' -->\n' + xml, function() {
 				doneCount++;
-				console.log(doneCount + ' out of 2 files completed.');
-				if (doneCount == 2) {
+				console.log(doneCount + ' out of 3 files completed.');
+				if (doneCount == 3) {
 					console.log('Finished conversion.');
 					waitForKey();
 				}
 			})
 		});
 	});
-};
+}
 
 if (process.argv[2] == "-h" || process.argv[2] == "--help" || process.argv[2] == "/?") {
 	console.log("Usage: TOSAbbreviator [options]");
