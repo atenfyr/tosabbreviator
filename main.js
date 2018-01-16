@@ -10,18 +10,17 @@ const args = require('minimist')(process.argv.slice(2));
 const prompt = require('prompt-sync')();
 const jf = require('jsonfile');
 
-if (!fs.existsSync('./tosabbreviator.json')) {
-	fs.writeFileSync('./tosabbreviator.json', '{}');
+if (!fs.existsSync('./.tosabbreviator')) {
+	fs.writeFileSync('./.tosabbreviator', '{}');
 }
 
-//let config = require('./tosabbreviator.json');
-let config = JSON.parse(fs.readFileSync('./tosabbreviator.json'));
-let directly = false;
+let config = JSON.parse(fs.readFileSync('./.tosabbreviator'));
 
-let version = '0.2.0'
+let version = '1.0.0'
 let writtenFor = 8298;
+let waitingForKey = false;
 
-let savelink = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Town of Salem\\XMLData\\Localization\\en-US\\"
+let savelink = "C:/Program Files (x86)/Steam/steamapps/common/Town of Salem/XMLData/Localization/en-US/"
 
 // i am well aware that i should put all of this in another file, but it has to be compilable using nexe
 let changes = { // Case sensitive
@@ -416,12 +415,10 @@ function displayHeader() {
 	console.log('---TOSAbbreviator v' + version + '---');
 	console.log('---Written by Atenfyr---\n')
 }
-function waitForKey() {
-	console.log('\nPress any key to exit.');
-
-	process.stdin.setRawMode(true);
-	process.stdin.resume();
-	process.stdin.on('data', process.exit.bind(process, 0));
+function waitForKey(cb) {
+	console.log('\nPress any key to continue.');
+	doneCount = 0;
+	waitingForKey = true;
 }
 
 function revertConv() {
@@ -464,29 +461,23 @@ function doConversion() {
 	lower(savelink + 'Gui.BACKUP');
 	lower(savelink + '../GameLanguage.BACKUP');
 }
-function doVersionCheck(cb) {
+function doVersionCheck() {
 	let latestN = 0;
 	fs.readFile(savelink + '\\PatchNotes\\PatchNotes.xml', function(err, data) {
 		let dsplit = data.toString().split("\n");
 		for (var i in dsplit) {
 			if (dsplit[i].indexOf("<Version>") != -1) {
 				latestN = Number(dsplit[i].replace(/[\D]/g, ""));
-				if (cb) {
-					return cb(latestN);
+				console.log("Installed: " + latestN);
+				console.log("Updated as of: " + writtenFor);
+				if (latestN > writtenFor) {
+					console.log("This tool is outdated. If possible, fetch the latest one.");
+				} else if (writtenFor > latestN) {
+					console.log("Your Town of Salem version is outdated.");
 				} else {
-					console.log("Installed: " + latestN);
-					console.log("Updated as of: " + writtenFor);
-					if (latestN > writtenFor) {
-						console.log("This tool is outdated. If possible, fetch the latest one.");
-					} else if (writtenFor > latestN) {
-						console.log("Your Town of Salem version is outdated.");
-					} else {
-						console.log("You're good to go!");
-					}
-					if (directly) {
-						waitForKey();
-					}
+					console.log("You're good to go!");
 				}
+				waitForKey();
 			}
 		}
 	});
@@ -605,112 +596,66 @@ function lower(pp) {
 	});
 }
 
-if (process.argv[2] == "-h" || process.argv[2] == "--help" || process.argv[2] == "/?") {
-	console.log("Usage: TOSAbbreviator [options]");
-	console.log("\nOptions:\n  -h, --help		display list of arguments");
-	console.log("  -v, --version		display town of salem version");
-	console.log("  -r, --revert		revert any conversions done");
-	console.log("  -p, --path		path of town of salem folder (surround in quotes) (default: \n			\"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Town of Salem\")")
-	console.log("  -c, --convert		convert the language files with the current settings.")
+console.clear();
+displayHeader();
+
+if (config['steampath']) {
+	if (config['steampath'] != 'default') {
+		savelink = config['steampath'] + '/steamapps/common/Town of Salem/XMLData/Localization/en-US/';
+	}
 } else {
-	let willConvert = false;
-	directly = true;
-
-	displayHeader();
-	if (args["p"] || args["path"]) {
-		if (args['p'] == true || args['path'] == true) {
-			console.log("Error: No path specified.");
-			willConvert = false;
-		} else {
-			savelink = ((args["p"])?args["p"]:args["path"]) + '\\XMLData\\Localization\\en-US\\';
-			willConvert = true;
+	let pathprefix = prompt('Steam Path (press enter for default) (e.g. C:\\Program Files (x86)\\Steam): ');
+	if (pathprefix) {
+		if (pathprefix.substring(pathprefix.length-1,pathprefix.length) == "\\") {
+			pathprefix = pathprefix.substring(0,pathprefix.length-1);
 		}
-	}
-	if (args["v"] || args["version"]) {
-		doVersionCheck();
-		willConvert = false;
-	}
-	if (args["r"] || args["revert"]) {
-		revertConv();
-		willConvert = false;
-	}
-	if (args["c"] || args["convert"]) {
-		willConvert = true;
-	} else if (process.argv.length == 2) {
-		console.clear();
-		displayHeader();
-		
-		if (config['steampath']) {
-			if (config['steampath'] != 'default') {
-				savelink = config['steampath'] + '\\steamapps\\common\\Town of Salem\\XMLData\\Localization\\en-US\\';
-			}
-		} else {
-			let pathprefix = prompt('Steam Path (press enter for default) (e.g. C:\\Program Files (x86)\\Steam): ');
-			if (pathprefix) {
-				if (pathprefix.substring(pathprefix.length-1,pathprefix.length) == "\\") {
-					pathprefix = pathprefix.substring(0,pathprefix.length-1);
-				}
-				savelink = pathprefix + '\\steamapps\\common\\Town of Salem\\XMLData\\Localization\\en-US\\';
-				if (!(fs.existsSync(savelink))) {
-					console.log('Invalid path. Please run this tool again and retry.');
-					process.exit();
-				}
-				config['steampath'] = pathprefix;
-			} else {
-				config['steampath'] = 'default';
-			}
-			jf.writeFileSync('./tosabbreviator.json', config);
+		savelink = pathprefix + '/steamapps/common/Town of Salem/XMLData/Localization/en-US/';
+		if (!(fs.existsSync(savelink))) {
+			console.log('Invalid path. Please run this tool again and retry.');
+			process.exit();
 		}
-
-		console.clear();
-		displayHeader();
-		console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  o		reset this tool's config\n  e		exit this tool");
-		
-		process.stdin.addListener("data", function(d) {
-			if (d) {
-				switch(d.toString().trim()) {
-					case 'c':
-						console.clear();
-						displayHeader();
-						doConversion();
-						process.stdin.pause();
-						break;
-					case 'v':
-						console.clear();
-						displayHeader();
-						doVersionCheck();
-						process.stdin.pause();
-						break;
-					case 'r':
-						console.clear();
-						displayHeader();
-						revertConv();
-						process.stdin.pause();
-						waitForKey();
-						break;
-					case 'o':
-						console.clear();
-						displayHeader();
-						if (fs.existsSync('./tosabbreviator.json')) {
-							fs.unlinkSync('./tosabbreviator.json');
-							console.log('Successfully reset the config.');
-						} else {
-							console.log('Could not find the config file.');
-						}
-						process.stdin.pause();
-						waitForKey();
-						break;
-					case 'e':
-						process.stdin.pause();
-						break;
-				}
-			}
-		});
-		process.stdin.setRawMode(true);
-		process.stdin.resume();
+		config['steampath'] = pathprefix;
+	} else {
+		config['steampath'] = 'default';
 	}
-
-	if (willConvert) {
-		doConversion();
-	}
+	jf.writeFileSync('./.tosabbreviator', config);
 }
+
+console.clear();
+displayHeader();
+console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  e		exit this tool");
+
+process.stdin.addListener("data", function(d) {
+	if (d) {
+		if (waitingForKey) {
+			console.clear();
+			displayHeader();
+			console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  e		exit this tool");
+			waitingForKey = false;
+		} else {
+			switch(d.toString().trim()) {
+				case 'c':
+					console.clear();
+					displayHeader();
+					doConversion();
+					break;
+				case 'v':
+					console.clear();
+					displayHeader();
+					doVersionCheck();
+					break;
+				case 'r':
+					console.clear();
+					displayHeader();
+					revertConv();
+					waitForKey();
+					break;
+				case 'e':
+					process.exit();
+					break;
+			}
+		}
+	}
+});
+process.stdin.setRawMode(true);
+process.stdin.resume();

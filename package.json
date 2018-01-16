@@ -1,10 +1,17 @@
 {
   "name": "TOSAbbreviator",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Changes Town of Salem's language files to convey better information for the experienced player.",
   "main": "main.js",
   "author": "Atenfyr",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/atenfyr/tosabbreviator.git"
+  },
+  "scripts": {
+    "begin": "npm install && node main"
+  },
   "dependencies": {
     "fs-extra": "^5.0.0",
     "jsonfile": "^4.0.0",
