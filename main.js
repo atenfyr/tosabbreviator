@@ -13,7 +13,9 @@ const jf = require('jsonfile');
 if (!fs.existsSync('./tosabbreviator.json')) {
 	fs.writeFileSync('./tosabbreviator.json', '{}');
 }
-let config = require('./tosabbreviator.json');
+
+//let config = require('./tosabbreviator.json');
+let config = JSON.parse(fs.readFileSync('./tosabbreviator.json'));
 let directly = false;
 
 let version = '0.1.1'
