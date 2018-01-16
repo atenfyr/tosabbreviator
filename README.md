@@ -25,3 +25,4 @@ Here is a list of all the changes that this tool makes to the language files of 
 - If you are jailed, the game refers to it as being "jailed," rather than "hauled off to jail."
 - When transported, the chat says "You were transported," rather than "You were transported to another location."
 - If the person you attack has too high defence, the game will say that they were immune, rather than stating that their defence was too high.
+- When you are attacked, but saved by a Bodyguard, the words "fought off your attacker" are replaced with "protected you."
