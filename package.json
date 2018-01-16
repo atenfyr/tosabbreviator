@@ -1,0 +1,15 @@
+{
+  "name": "TOSAbbreviator",
+  "version": "0.1.0",
+  "description": "Changes Town of Salem's language files to convey better information for the experienced player.",
+  "main": "main.js",
+  "author": "Atenfyr",
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^5.0.0",
+    "jsonfile": "^4.0.0",
+    "minimist": "^1.2.0",
+    "prompt-sync": "^4.1.5",
+    "xml2js": "^0.4.19"
+  }
+}
