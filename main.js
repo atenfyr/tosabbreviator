@@ -221,7 +221,7 @@ let abbreviations = {
 	"Mayor": "N/A",
 	"Tracker": "N/A",
 	"Plaguebearer": "PB",
-	"Pestilence": "Pest/Pesti",
+	"Pestilence": "Pest",
 	"Bodyguard": "BG",
 	"Godfather": "GF",
 	"Arsonist": "Arso",
@@ -232,7 +232,7 @@ let abbreviations = {
 	"Pirate": "N/A",
 	"Ambusher": "N/A",
 	"Medium": "Med",
-	"Janitor": "Jan (somewhat uncommon)",
+	"Janitor": "Jan/Jani (somewhat uncommon)",
 	"Retributionist": "Retri",
 	"Necromancer": "Necro",
 	"Trapper": "N/A",
@@ -605,7 +605,8 @@ if (config['steampath']) {
 } else {
 	let pathprefix = prompt('Steam Path (press enter for default) (e.g. C:\\Program Files (x86)\\Steam): ');
 	if (pathprefix) {
-		if (pathprefix.substring(pathprefix.length-1,pathprefix.length) == "\\") {
+		let lastchar = pathprefix.substring(pathprefix.length-1,pathprefix.length);
+		if (lastchar == "\\" || lastchar == "/") {
 			pathprefix = pathprefix.substring(0,pathprefix.length-1);
 		}
 		savelink = pathprefix + '/steamapps/common/Town of Salem/XMLData/Localization/en-US/';
