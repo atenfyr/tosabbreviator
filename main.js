@@ -1,12 +1,11 @@
 /*
-	TOSAbbreviator
+	tosabbreviator
 	Written by Atenfyr
 */
 
 const fs = require('fs-extra');
 const path = require('path');
 const xml2js = require('xml2js');
-const args = require('minimist')(process.argv.slice(2));
 const prompt = require('prompt-sync')();
 const jf = require('jsonfile');
 
@@ -16,7 +15,7 @@ if (!fs.existsSync('./.tosabbreviator')) {
 
 let config = JSON.parse(fs.readFileSync('./.tosabbreviator'));
 
-let version = '1.0.0'
+let version = '1.0.0';
 let writtenFor = 8298;
 let waitingForKey = false;
 
