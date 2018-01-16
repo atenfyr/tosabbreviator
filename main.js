@@ -14,8 +14,9 @@ if (!fs.existsSync('./tosabbreviator.json')) {
 	fs.writeFileSync('./tosabbreviator.json', '{}');
 }
 let config = require('./tosabbreviator.json');
+let directly = false;
 
-let version = '0.1.0'
+let version = '0.1.1'
 let writtenFor = 8298;
 
 let savelink = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Town of Salem\\XMLData\\Localization\\en-US\\"
@@ -411,6 +412,14 @@ function displayHeader() {
 	console.log('---TOSAbbreviator v' + version + '---');
 	console.log('---Written by Atenfyr---\n')
 }
+function waitForKey() {
+	console.log('\nPress any key to exit.');
+
+	process.stdin.setRawMode(true);
+	process.stdin.resume();
+	process.stdin.on('data', process.exit.bind(process, 0));
+}
+
 function revertConv() {
 	if (!fs.existsSync(savelink + 'Game.BACKUP') || !fs.existsSync(savelink + 'Gui.BACKUP')) {
 		console.log('Backup files are not present. You can do this in Steam; right-click Town of Salem\nin your games menu, click "Properties," click on the tab "Local Files," and click "Verify Integrity of Game Files."');
@@ -446,13 +455,16 @@ function doVersionCheck(cb) {
 					return cb(latestN);
 				} else {
 					console.log("Installed: " + latestN);
-					console.log("Updated as of: " + writtenFor + "\n");
+					console.log("Updated as of: " + writtenFor);
 					if (latestN > writtenFor) {
 						console.log("This tool is outdated. If possible, fetch the latest one.");
 					} else if (writtenFor > latestN) {
 						console.log("Your Town of Salem version is outdated.");
 					} else {
 						console.log("You're good to go!");
+					}
+					if (directly) {
+						waitForKey();
 					}
 				}
 			}
@@ -562,6 +574,7 @@ function lower(pp) {
 				console.log(doneCount + ' out of 2 files completed.');
 				if (doneCount == 2) {
 					console.log('Finished conversion.');
+					waitForKey();
 				}
 			})
 		});
@@ -577,6 +590,7 @@ if (process.argv[2] == "-h" || process.argv[2] == "--help" || process.argv[2] ==
 	console.log("  -c, --convert		convert the language files with the current settings.")
 } else {
 	let willConvert = false;
+	directly = true;
 
 	displayHeader();
 	if (args["p"] || args["path"]) {
@@ -648,6 +662,7 @@ if (process.argv[2] == "-h" || process.argv[2] == "--help" || process.argv[2] ==
 						displayHeader();
 						revertConv();
 						process.stdin.pause();
+						waitForKey();
 						break;
 					case 'o':
 						console.clear();
@@ -659,6 +674,7 @@ if (process.argv[2] == "-h" || process.argv[2] == "--help" || process.argv[2] ==
 							console.log('Could not find the config file.');
 						}
 						process.stdin.pause();
+						waitForKey();
 						break;
 					case 'e':
 						process.stdin.pause();
