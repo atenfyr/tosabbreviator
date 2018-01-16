@@ -9,15 +9,18 @@ const xml2js = require('xml2js');
 const prompt = require('prompt-sync')();
 const jf = require('jsonfile');
 
-if (!fs.existsSync('./.tosabbreviator')) {
-	fs.writeFileSync('./.tosabbreviator', '{}');
+const homedir = require('os').homedir();
+
+if (!fs.existsSync(homedir + '/.tosabbreviator')) {
+	fs.writeFileSync(homedir + '/.tosabbreviator', '{}');
 }
 
-let config = JSON.parse(fs.readFileSync('./.tosabbreviator'));
+let config = JSON.parse(fs.readFileSync(homedir + '/.tosabbreviator'));
 
-let version = '1.0.0';
+let version = '2.0.0';
 let writtenFor = 8298;
 let waitingForKey = false;
+let ynPrompt = false;
 
 let savelink = "C:/Program Files (x86)/Steam/steamapps/common/Town of Salem/XMLData/Localization/en-US/"
 
@@ -411,8 +414,8 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 function displayHeader() {
-	console.log('---TOSAbbreviator v' + version + '---');
-	console.log('---Written by Atenfyr---\n')
+	console.log('---tosabbreviator v' + version + '---');
+	console.log('----Written by Atenfyr----\n')
 }
 function waitForKey(cb) {
 	console.log('\nPress any key to continue.');
@@ -460,23 +463,27 @@ function doConversion() {
 	lower(savelink + 'Gui.BACKUP');
 	lower(savelink + '../GameLanguage.BACKUP');
 }
-function doVersionCheck() {
+function doVersionCheck(cb) {
 	let latestN = 0;
 	fs.readFile(savelink + '\\PatchNotes\\PatchNotes.xml', function(err, data) {
 		let dsplit = data.toString().split("\n");
 		for (var i in dsplit) {
 			if (dsplit[i].indexOf("<Version>") != -1) {
 				latestN = Number(dsplit[i].replace(/[\D]/g, ""));
-				console.log("Installed: " + latestN);
-				console.log("Updated as of: " + writtenFor);
-				if (latestN > writtenFor) {
-					console.log("This tool is outdated. If possible, fetch the latest one.");
-				} else if (writtenFor > latestN) {
-					console.log("Your Town of Salem version is outdated.");
+				if (cb) {
+					return cb(latestN)
 				} else {
-					console.log("You're good to go!");
+					console.log("Installed: " + latestN);
+					console.log("Updated as of: " + writtenFor);
+					if (latestN > writtenFor) {
+						console.log("This tool is outdated. If possible, fetch the latest one.");
+					} else if (writtenFor > latestN) {
+						console.log("Your Town of Salem version is outdated.");
+					} else {
+						console.log("You're good to go!");
+					}
+					waitForKey();
 				}
-				waitForKey();
 			}
 		}
 	});
@@ -618,20 +625,79 @@ if (config['steampath']) {
 	} else {
 		config['steampath'] = 'default';
 	}
-	jf.writeFileSync('./.tosabbreviator', config);
+	jf.writeFileSync(homedir + '/.tosabbreviator', config);
 }
 
 console.clear();
 displayHeader();
-console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  e		exit this tool");
-
+doVersionCheck(function(v) {
+	if (config["latest"]) {
+		if (v != config["latest"]) {
+			if (fs.existsSync(savelink + 'Game.BACKUP')) {
+				fs.unlinkSync(savelink + 'Game.BACKUP');
+			}
+			if (fs.existsSync(savelink + 'Gui.BACKUP')) {
+				fs.unlinkSync(savelink + 'Gui.BACKUP');
+			}
+			if (fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
+				fs.unlinkSync(savelink + '../GameLanguage.BACKUP');
+			}
+			console.log('\nNote: Town of Salem has updated, and all backup files have been removed.');
+		}
+	}
+	config["latest"] = v;
+	jf.writeFileSync(homedir + '/.tosabbreviator', config);
+});
+console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  e		exit this tool");
 process.stdin.addListener("data", function(d) {
 	if (d) {
 		if (waitingForKey) {
 			console.clear();
 			displayHeader();
-			console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  e		exit this tool");
+			console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  e		exit this tool");
 			waitingForKey = false;
+		} else if (ynPrompt) {
+			switch(d.toString().trim()) {
+				case 'y':
+					console.clear();
+					displayHeader();
+					console.log("Beginning repairs.");
+					if (fs.existsSync(savelink + 'Game.BACKUP')) {
+						fs.unlinkSync(savelink + 'Game.BACKUP');
+						console.log("Removed Game.BACKUP.");	
+					}
+					if (fs.existsSync(savelink + 'Gui.BACKUP')) {
+						fs.unlinkSync(savelink + 'Gui.BACKUP');
+						console.log("Removed Gui.BACKUP.");
+					}
+					if (fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
+						fs.unlinkSync(savelink + '../GameLanguage.BACKUP');
+						console.log("Removed GameLanguage.BACKUP.");
+					}
+					if (fs.existsSync(savelink + 'Game.xml')) {
+						fs.unlinkSync(savelink + 'Game.xml');
+						console.log("Removed Game.xml.");
+					}
+					if (fs.existsSync(savelink + 'Gui.xml')) {
+						fs.unlinkSync(savelink + 'Gui.xml');
+						console.log("Removed Gui.xml.");
+					}
+					if (fs.existsSync(savelink + '../GameLanguage.xml')) {
+						fs.unlinkSync(savelink + '../GameLanguage.xml');
+						console.log("Removed GameLanguage.xml.");	
+					}
+					console.log('Finished repairs.');
+					console.log('\nPLEASE VERIFY THE INTEGRITY OF YOUR GAME FILES.\nTo do this, right-click Town of Salem in your Steam games menu, click "Properties," click on the tab "Local Files," and click "Verify Integrity of Game Files."');
+					ynPrompt = false;
+					waitForKey();
+					break;
+				case 'n':
+					console.clear();
+					displayHeader();
+					ynPrompt = false;
+					waitForKey();
+					break;
+			}
 		} else {
 			switch(d.toString().trim()) {
 				case 'c':
@@ -649,6 +715,12 @@ process.stdin.addListener("data", function(d) {
 					displayHeader();
 					revertConv();
 					waitForKey();
+					break;
+				case 'p':
+					console.clear();
+					displayHeader();
+					console.log('Are you sure you want to do this? This will wipe all conversions done! (y/n)');
+					ynPrompt = true;
 					break;
 				case 'e':
 					process.exit();
