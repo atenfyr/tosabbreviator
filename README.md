@@ -2,11 +2,11 @@
 A tool that converts the Town of Salem language files on the Steam version to display the information you need to play in as few words as possible.
 
 ## Installation
-# Windows
+### Windows
 You can download the latest stable version of tosabbreviator [here](https://github.com/atenfyr/tosabbreviator/releases). Simply double-click the .exe file, type in your steam path, press the "c" key, and you're done.
-# Mac
+### Mac
 If you have node.js installed on your system, you can download the source of the latest stable version [here](https://github.com/atenfyr/tosabbreviator/releases). Instead of downloading the .exe file, download the source code as a zip. Extract the folder inside the source zip and run "npm run begin" in a command line. Note that the default is intended for Windows, and you will have to put in your own path.
-# Other
+### Other
 Town of Salem for Steam is not available on your system yet. However, if it is available in the future, the instructions for Mac should work just as well.
 
 ## Changes
