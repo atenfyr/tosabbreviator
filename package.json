@@ -10,7 +10,7 @@
     "url": "https://github.com/atenfyr/tosabbreviator.git"
   },
   "scripts": {
-    "abbr": "npm install && node main"
+    "start": "npm install && node main"
   },
   "dependencies": {
     "fs-extra": "^5.0.0",

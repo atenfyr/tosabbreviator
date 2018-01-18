@@ -90,7 +90,6 @@ let changes = { // Case sensitive
 	"An Arso": "An arso",
 	"Your target's defense was too strong to kill": "Your target was immune",
 	"The jester will get his revenge from the grave": "Good job, you lynched the Jester",
-	"You could not get over the guilt of killing a town member. You shot yourself":  "You shot yourself over the guilt of killing another town member",
 	"town member": "townie",
 	"Pestilence, Horseman of the Apocalypse": "Pestilence",
 	"Blackmailed": "BM'd",
@@ -144,6 +143,7 @@ let forcechanges = {
 	"53": "Result: Mayor",
 	"65": "Result: GF",
 	"72": "Result: Jest",
+	"88": "You shot yourself.",
 	"102": "Result: WW",
 	"104": "You can attack tonight.",
 	"149": "Result: PB",
@@ -500,7 +500,7 @@ function lower(pp) {
 					if (forcechanges[result["Entries"]["Entry"][i]["id"][0]]) {
 						result["Entries"]["Entry"][i]["Text"][0] = forcechanges[result["Entries"]["Entry"][i]["id"][0]];
 						if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Result: ") != -1) || (result["Entries"]["Entry"][i]["Text"][0].indexOf("Results: ") != -1)) {
-							result["Entries"]["Entry"][i]["Color"][0] = "0x0090EB";
+							result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
 						}
 					} else if (result["Entries"]["Entry"][i]["id"][0].substring(0,10) == "SpyResult_") {
 						var id = result["Entries"]["Entry"][i]["id"][0].substring(10);
@@ -511,7 +511,7 @@ function lower(pp) {
 							}
 						}
 						result["Entries"]["Entry"][i]["Text"][0] = "On target: " + result["Entries"]["Entry"][id]["Text"][0].replace(/On target\: /g, "");
-						result["Entries"]["Entry"][i]["Color"][0] = "0x0090EB";
+						result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
 					} else if (result["Entries"]["Entry"][i]["Text"]) {
 						for (var j in changes) {
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "g"), changes[j]);
@@ -521,22 +521,21 @@ function lower(pp) {
 						}
 						if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Your target") !== -1) && (result["Entries"]["Entry"][i]["Text"][0].indexOf("They must be") !== -1)) {
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(/.+(\They must be a )/g, "Result: ").replace(/.+(\They must be an )/g, "Result: ");
-							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].substring(0, result["Entries"]["Entry"][i]["Text"][0].length-1);
-							result["Entries"]["Entry"][i]["Color"][0] = "0x0090EB";
+							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].slice(0, -1);
 						} else if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Your target could be a") != -1)) {
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace("Your target could be a ", "Results: ").replace("Your target could be an ", "Results: ").replace(/\, /g, "/").replace(/or /g, "");
-							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].substring(0, result["Entries"]["Entry"][i]["Text"][0].length-1);
-							result["Entries"]["Entry"][i]["Color"][0] = "0x0090EB";
+							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].slice(0, -1);
+							result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
 						}
 					}
 											
 					/*
-					0x0090EB (Dark Cyan) = Investigative result
+					0x549BF2 (Light Blue) = Investigative result
 					0xFFFF00 (Red) = Dangerous
 					0x808080 (Grey) = Other
 					*/
 					if (result["Entries"]["Entry"][i]["Color"] && result["Entries"]["Entry"][i]["id"][0] != "81" && result["Entries"]["Entry"][i]["id"][0] != "100") {
-						if ((result["Entries"]["Entry"][i]["Color"][0] != "0x0090EB") && (result["Entries"]["Entry"][i]["Color"][0] != "0x00FF00")) {
+						if ((result["Entries"]["Entry"][i]["Color"][0] != "0x549BF2") && (result["Entries"]["Entry"][i]["Color"][0] != "0x00FF00")) {
 							var text = result["Entries"]["Entry"][i]["Text"][0];
 							var danger = false;
 							for (var j in dangerwords) {
