@@ -138,21 +138,12 @@ let forcechanges = {
 	"1": "Result: ns/gf",
 	"2": "Result: Cult",
 	"3": "Result: SK",
-	"29": "Result: Juggernaut",
+	"29": "Result: Jugg",
 	"37": "Results: Framer/Vamp/Jest (possibly framed)",
-	"53": "Result: Mayor",
-	"65": "Result: GF",
-	"72": "Result: Jest",
 	"88": "You shot yourself.",
-	"102": "Result: WW",
 	"104": "You can attack tonight.",
-	"149": "Result: PB",
-	"150": "Result: Pestilence",
-	"155": "Result: CL",
-	"156": "Result: Hex Master",
-	"157": "Result: Necro",
-	"158": "Result: Poisoner",
-	"159": "Result: Medusa",
+	"145": "Not enough good roles to have a vision.",
+	"146": "Not enough people alive to have a vision.",
 	"Coven31": "Results: Vig/Vet/Mafioso/Pirate/Ambusher",
 	"Coven32": "Results: Med/Janitor/Retri/Necro/Trapper",
 	"Coven33": "Results: Surv/VH/Medusa/Psy",
@@ -208,7 +199,7 @@ let investResults = {
 	"Forger": "LO/Forger/Witch (CL)",
 	"Witch": "LO/Forger/Witch",
 	"CovenLeader": "LO/Forger/CL",
-	"Juggernaut": "N/A"
+	"Juggernaut": "No Investigator Result"
 }
 let abbreviations = {
 	"Escort": "N/A",
@@ -228,14 +219,14 @@ let abbreviations = {
 	"Bodyguard": "BG",
 	"Godfather": "GF",
 	"Arsonist": "Arso",
-	"Crusader": "Crus (uncommon)",
+	"Crusader": "N/A",
 	"Vigilante": "Vig",
 	"Veteran": "Vet",
 	"Mafioso": "N/A",
 	"Pirate": "N/A",
 	"Ambusher": "N/A",
 	"Medium": "Med",
-	"Janitor": "Jan/Jani (somewhat uncommon)",
+	"Janitor": "Jan",
 	"Retributionist": "Retri",
 	"Necromancer": "Necro",
 	"Trapper": "N/A",
@@ -255,7 +246,7 @@ let abbreviations = {
 	"Framer": "N/A",
 	"Vampire": "Vamp",
 	"Jester": "Jest",
-	"HexMaster": "Hex (uncommon)",
+	"HexMaster": "Hex",
 	"Lookout": "LO",
 	"Forger": "N/A",
 	"Witch": "N/A",
@@ -520,8 +511,21 @@ function lower(pp) {
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "gi"), changes2[j]);
 						}
 						if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Your target") !== -1) && (result["Entries"]["Entry"][i]["Text"][0].indexOf("They must be") !== -1)) {
-							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(/.+(\They must be a )/g, "Result: ").replace(/.+(\They must be an )/g, "Result: ");
+							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(/.+(\They must be a )/g, "Result: ").replace(/.+(\They must be an )/g, "Result: ").replace(/.+(\They must be the )/g, "Result: ").replace(/.+(\They must be )/g, "Result: ");
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].slice(0, -1);
+							result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
+
+							let abbreviatedRole = result["Entries"]["Entry"][i]["Text"][0].replace("Result: ", "").trim();
+							let nonAbbreviatedRole = abbreviatedRole;
+							for (var j in abbreviations) {
+								if (abbreviations[j].toLowerCase() == abbreviatedRole.toLowerCase()) {
+									nonAbbreviatedRole = j;
+									break;
+								}
+							}
+
+							nonAbbreviatedRole = nonAbbreviatedRole.replace(/\s/g, '');
+							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0] + ' (' + (investResults[nonAbbreviatedRole] || "Error!").replace(/\(/g, '[').replace(/\)/g, ']') + ')';
 						} else if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Your target could be a") != -1)) {
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace("Your target could be a ", "Results: ").replace("Your target could be an ", "Results: ").replace(/\, /g, "/").replace(/or /g, "");
 							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].slice(0, -1);

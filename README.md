@@ -15,9 +15,9 @@ Here is a list of all the changes that this tool makes to the language files of 
 - All roles except the Jester are abbreviated (apart from Investigator and Consigliere results, where Jester is abbreviated to Jest), and "Pestilence, Horseman of the Apocalypse" is shortened to just "Pestilence."
 - Blackmailed is abbreviated to BM'd, and roleblocked is abbreviated to RB'd. Not suspicious is abbreviated to ns/gf.
 - All exclamation points have been switched out for full stops, as after enough gameplay, none of the status messages warrant overexcitement.
-- Role cards have been completely revamped. Role cards show their Investigator results (a role in parentheses means that it only will show up in the Coven expansion), traits such as "RB Immunity", uniqueness, action priority, and their common abbreviation, rather than simply how to play the role.
+- Role cards have been completely revamped. Role cards show their Investigator results (a role in brackets means that it only will show up in the Coven expansion), traits such as "RB Immunity", uniqueness, action priority, and their common abbreviation, rather than simply how to play the role.
 - The background colour of status messages are no longer nearly always red. Red is reserved for "dangerous" messages, green for messages that involve healing, dark cyan for investigative result messages, and grey for all other messages that do not fit in any of these categories.
-- Investigator and Consigliere/Witch results show up as "Results: X/Y/Z" and "Result: X" respectively.
+- Investigator and Consigliere/Witch results show up as "Results: X/Y/Z" and "Result: X (X/Y/Z)" respectively. Consigliere and Witch results will also the Investigator results of the role that they investigated, and any role in brackets (square brackets for the Consigliere and Witch) signifies that that role will only show up in the Coven expansion.
 - Framer/Vamp/Jest results also state that it is possible that the target was framed.
 - Spy and Lookout visit messages say "Mafia visits," "Coven visits," and "Target visited by" rather than "visited by a member of the mafia/coven" and "... visited your target last night!"
 - When the Spy bugs a target, it gives the message that would have appeared to the target and puts "On target:" in front, rather than changing all the words to refer to "them" rather than "you."
