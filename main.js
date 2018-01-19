@@ -101,7 +101,9 @@ let changes = { // Case sensitive
 	"role blocked": "rb'd",
 	"role block": "rb",
 	"Role block": "RB",
-	"BG/GF": "bg/gf"
+	"BG/GF": "bg/gf",
+	"You are immune": "You were immune",
+	"you are immune": "you were immune",
 }
 let changes2 = { // Not case sensitive
 	"not suspicious":"ns/gf",
@@ -110,8 +112,8 @@ let changes2 = { // Not case sensitive
 	"a member of the %role%": "the %role%",
 	"nursed you back to health": "healed you",
 	"nursed them back to health": "healed them",
-	"fought off your attacker": "protected you", // new
-	"fought off their attacker": "protected them", // new
+	"fought off your attacker": "protected you",
+	"fought off their attacker": "protected them",
 	"their defense was too strong": "they were immune",
 	"your defense was too strong": "you were immune",
 	" you can feel your heart breaking.": "",
@@ -119,10 +121,8 @@ let changes2 = { // Not case sensitive
 	" they will die tomorrow unless cured.": "",
 	"You feel a mystical power dominating you. ": "",
 	"Someone threatened to reveal your secrets. You are bm'd": "You were bm'd",
-	" but you were": ", but you were",
-	" but they were": ", but they were",
-	" but you are": ", but you are",
-	" but they are": ", but they are",
+	" but you": ", but you",
+	" but they": ", but they",
 	" but someone": ", but someone",
 	" You committed suicide over the guilt.": "",
 	"Someone occupied your night. ": "",
@@ -131,6 +131,7 @@ let changes2 = { // Not case sensitive
 	" in gas": "",
 	"gasoline": "gas",
 	" to another location": "",
+	"bulletproof vest": "vest",
 	"!": "."
 }
 let forcechanges = {
@@ -138,6 +139,7 @@ let forcechanges = {
 	"1": "Result: ns/gf",
 	"2": "Result: Cult",
 	"3": "Result: SK",
+	"24": "You were killed by the SK you visited.",
 	"29": "Result: Jugg",
 	"37": "Results: Framer/Vamp/Jest (possibly framed)",
 	"88": "You shot yourself.",
@@ -395,7 +397,26 @@ let guichanges = {
 	"UILanguageLabel": "Language",
 	"SpyNightAbilityMessageMafia": "Mafia visits: %name%",
 	"SpyNightAbilityMessageCoven": "Coven visits: %name%",
-	"Youngest": "New"
+	"AmnesiacRememberedRoleX": "An amne has turned into a %role%.",
+	"Youngest": "New",
+	"XVotesAreNeeded": "Votes needed: %number%",
+	"XVotesNeeded": "Votes needed: %number%",
+	"DoYouHaveLastWords": "Any last words?",
+	"TownPutThemOnTrial": "%name% has been put on trial.",
+	"TownMayVoteOnThem": "You may now vote on %name%'s fate.",
+	"TownDecidedToLynchThem": "%name% will be lynched by a vote of %x% to %y%.",
+	"TownDecidedToPardonThem": "%name% has been pardoned by a vote of %x% to %y%.",
+	"TrialsRemainingPlural": "%number% possible trials left.",
+	"TrialsRemainingSingle": "1 possible trial left.",
+	"TrackerFeedback1": "Target visited %name%",
+	"LoverTarget": "%name% is your lover.",
+	"RivalTarget": "%name% is your rival.",
+	"WeAreVIP": "You are the VIP.",
+	"VIPTarget": "%name% is the VIP.",
+	"JuggernautFeedback1": "You can now attack every night.",
+	"JuggernautFeedback2": "You now have Basic defense.",
+	"JuggernautFeedback3": "You can now Rampage.",
+	"JuggernautFeedback4": "You now have Unstoppable attack.",
 }
 let dangerwords = ["You did not perform your day ability.", "You did not perform your night ability.", "haunt", "consume", "control", "lynch", "staked", "die", "shot", "douse", "set on fire", "murder", "attack", "kill", "execute", "suicide", "guilt", "mafia", "serial killer", "bm", "rb", "immune", "transport"];
 
@@ -564,10 +585,10 @@ function lower(pp) {
 						if (guichanges[result["Entries"]["Entry"][i]["id"]]) {
 							result["Entries"]["Entry"][i]["Text"][0] = guichanges[result["Entries"]["Entry"][i]["id"]];
 						} else if ((result["Entries"]["Entry"][i]["id"][0].indexOf("RoleCardAbility") != -1)) {
-							let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAbility", "");
+							let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAbility", "").replace(/\d/g, '');
 							result["Entries"]["Entry"][i]["Text"][0] = investResults[role] || "Error!";
 						} else if ((result["Entries"]["Entry"][i]["id"][0].indexOf("RoleCardAttribute") != -1)) {
-							let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAttribute", "");
+							let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAttribute", "").replace(/\d/g, '');
 							if (role == "Executioner") {
 								result["Entries"]["Entry"][i]["Text"][0] = ("- Target: %name%\n- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniques[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!") + " (1 is highest possible)");
 							} else {
