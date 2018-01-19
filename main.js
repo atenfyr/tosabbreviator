@@ -21,7 +21,8 @@ let version = '2.1.0';
 let writtenFor = 8298;
 let waitingForKey, ynPrompt, disabled, pathError = false;
 
-let savelink = "C:/Program Files (x86)/Steam/steamapps/common/Town of Salem/XMLData/Localization/en-US/"
+let defaultlink = "C:/Program Files (x86)/Steam/steamapps/common/Town of Salem/XMLData/Localization/en-US/";
+let savelink = defaultlink;
 
 // i am well aware that i should put all of this in another file, but it has to be compilable using nexe
 let changes = { // Case sensitive
@@ -520,6 +521,59 @@ function doVersionCheck(cb) {
 		}
 	});
 }
+function getPath(menu) {
+	if (menu) {
+		disabled = true;
+		console.clear();
+		displayHeader();
+	}
+
+	let pathprefix = prompt('Steam Path (press enter for default) (e.g. C:\\Program Files (x86)\\Steam): ');
+	if (pathprefix) {
+		let lastchar = pathprefix.substring(pathprefix.length-1,pathprefix.length);
+		if (lastchar == "\\" || lastchar == "/") {
+			pathprefix = pathprefix.substring(0,pathprefix.length-1);
+		}
+		savelink = pathprefix + '/steamapps/common/Town of Salem/XMLData/Localization/en-US/';
+		if (!(fs.existsSync(savelink))) {
+			console.clear();
+			displayHeader();
+
+			console.log('Failed to find Town of Salem for Steam in that directory.');
+			if (!menu) {
+				waitForKey(true);
+				pathError = true;
+				disabled = true;
+			}
+		} else {
+			config['steampath'] = pathprefix;
+			process.stdout.write('\nSuccessfully changed Steam path.');
+		}
+	} else {
+		if (!(fs.existsSync(defaultlink))) {
+			console.clear();
+			displayHeader();
+
+			if (!menu) {
+				console.log('The default path does not exist on this system. Please re-run this program and type in your Steam path.');
+				waitForKey(true);
+				pathError = true;
+				disabled = true;
+			} else {
+				console.log('The default path does not exist on this system.');
+			}
+		} else {
+			config['steampath'] = 'default';
+			process.stdout.write('\nSuccessfully changed Steam path.');
+		}
+	}
+	jf.writeFileSync(homedir + '/.tosabbreviator', config);
+
+	if (menu) {
+		disabled = false;
+		waitForKey(false);
+	}
+}
 
 
 var parser = new xml2js.Parser();
@@ -655,38 +709,7 @@ if (config['steampath']) {
 		savelink = config['steampath'] + '/steamapps/common/Town of Salem/XMLData/Localization/en-US/';
 	}
 } else {
-	let pathprefix = prompt('Steam Path (press enter for default) (e.g. C:\\Program Files (x86)\\Steam): ');
-	if (pathprefix) {
-		let lastchar = pathprefix.substring(pathprefix.length-1,pathprefix.length);
-		if (lastchar == "\\" || lastchar == "/") {
-			pathprefix = pathprefix.substring(0,pathprefix.length-1);
-		}
-		savelink = pathprefix + '/steamapps/common/Town of Salem/XMLData/Localization/en-US/';
-		if (!(fs.existsSync(savelink))) {
-			console.clear();
-			displayHeader();
-
-			console.log('Invalid path. Are you sure you have Town of Salem for Steam installed on your system? Please reboot this tool and try again.');
-			waitForKey(true);
-			pathError = true;
-			disabled = true;
-		} else {
-			config['steampath'] = pathprefix;
-		}
-	} else {
-		if (!(fs.existsSync(savelink))) {
-			console.clear();
-			displayHeader();
-
-			console.log('Could not find default path. Please re-run this program and type in your Steam path.');
-			waitForKey(true);
-			pathError = true;
-			disabled = true;
-		} else {
-			config['steampath'] = 'default';
-		}
-	}
-	jf.writeFileSync(homedir + '/.tosabbreviator', config);
+	getPath();
 }
 
 if (!pathError) {
@@ -710,14 +733,14 @@ if (!pathError) {
 		config["latest"] = v;
 		jf.writeFileSync(homedir + '/.tosabbreviator', config);
 	});
-	console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  e		exit this tool");
+	console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  e		exit this tool");
 }
 process.stdin.addListener("data", function(d) {
 	if (d && !disabled) {
 		if (waitingForKey) {
 			console.clear();
 			displayHeader();
-			console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  e		exit this tool");
+			console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  e		exit this tool");
 			waitingForKey = false;
 		} else if (ynPrompt) {
 			switch(d.toString().trim()) {
@@ -784,6 +807,9 @@ process.stdin.addListener("data", function(d) {
 					displayHeader();
 					console.log('Are you sure you want to do this? This will wipe all conversions done! (y/n)');
 					ynPrompt = true;
+					break;
+				case 'a':
+					getPath(true);
 					break;
 				case 'e':
 					process.exit();

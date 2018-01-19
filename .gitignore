@@ -1,5 +1,4 @@
 node_modules
-.tosabbreviator
 tosabbreviator*.exe
 .vscode/*
 !.vscode/settings.json
