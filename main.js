@@ -131,27 +131,6 @@ let changes2 = { // Not case sensitive
 	"bulletproof vest": "vest",
 	"!": "."
 }
-let forcechanges = {
-	"0": "Result: Mafia",
-	"1": "Result: ns/gf",
-	"2": "Result: Cult",
-	"3": "Result: SK",
-	"24": "You were killed by the SK you visited.",
-	"29": "Result: Jugg",
-	"37": "Results: Framer/Vamp/Jest (possibly framed)",
-	"88": "You shot yourself.",
-	"104": "You can attack tonight.",
-	"126": "You were attacked by the CL.",
-	"145": "Not enough good roles to have a vision.",
-	"146": "Not enough people alive to have a vision.",
-	"168": "Result: Coven",
-	"169": "You cannot resurrect this role.",
-	"170": "You cannot remember a unique role.", 
-	"Coven31": "Results: Vig/Vet/Mafioso/Pirate/Ambusher",
-	"Coven32": "Results: Med/Janitor/Retri/Necro/Trapper",
-	"Coven33": "Results: Surv/VH/Medusa/Psy",
-	"Coven37": "Results: Framer/Vamp/Jest/Hex Master (possibly framed)"
-}
 let investResults = {
 	"Escort": "Escort/Trans/Consort (Hypno)",
 	"Transporter": "Escort/Trans/Consort (Hypno)",
@@ -422,7 +401,33 @@ let guichanges = {
 	"JuggernautFeedback3": "You can now Rampage.",
 	"JuggernautFeedback4": "You now have Unstoppable attack.",
 }
-let dangerwords = ["You did not perform your day ability.", "You did not perform your night ability.", "haunt", "consume", "control", "lynch", "staked", "die", "shot", "douse", "set on fire", "murder", "attack", "kill", "execute", "suicide", "guilt", "mafia", "serial killer", "bm", "rb", "immune", "transport"];
+let forcechanges = {
+	"0": "Result: Mafia",
+	"1": "Result: ns/gf",
+	"2": "Result: Cult",
+	"3": "Result: SK",
+	"24": "You were killed by the SK you visited.",
+	"29": "Result: Jugg",
+	"37": "Results: Framer/Vamp/Jest (possibly framed)",
+	"88": "You shot yourself.",
+	"102": "Result: WW",
+	"104": "You can attack tonight.",
+	"126": "You were attacked by the CL.",
+	"145": "Not enough good roles to have a vision.",
+	"146": "Not enough people alive to have a vision.",
+	"168": "Result: Coven",
+	"169": "You cannot resurrect this role.",
+	"170": "You cannot remember a unique role.", 
+	"Coven31": "Results: Vig/Vet/Mafioso/Pirate/Ambusher",
+	"Coven32": "Results: Med/Janitor/Retri/Necro/Trapper",
+	"Coven33": "Results: Surv/VH/Medusa/Psy",
+	"Coven37": "Results: Framer/Vamp/Jest/Hex Master (possibly framed)"
+}
+let forceDangerous = [
+	107, 108
+];
+
+let dangerwords = ["haunt", "consume", "control", "lynch", "staked", "die", "shot", "douse", "fire", "murder", "attack", "kill", "execute", "suicide", "guilt", "bm", "rb", "immune", "transport"];
 
 let doneCount = 0;
 
@@ -575,7 +580,7 @@ function lower(pp) {
 								}
 							}
 							
-							if (result["Entries"]["Entry"][i]["id"][0] == "102") {
+							if (forceDangerous.includes(Number(result["Entries"]["Entry"][i]["id"][0]))) {
 								result["Entries"]["Entry"][i]["Color"] = "0xFF0000";
 							} else if (!danger) {
 								result["Entries"]["Entry"][i]["Color"] = "0x808080";
@@ -618,7 +623,7 @@ function lower(pp) {
 			}
 			var builder = new xml2js.Builder({"headless": true});
 			var xml = builder.buildObject(result);
-			fs.writeFile(savelink + (fn.replace('BACKUP', 'xml')), '<?xml version="1.0" encoding="utf-8"?>\n<!-- Parsed by TOSAbbreviator v' + version + ' -->\n' + xml, function() {
+			fs.writeFile(savelink + (fn.replace('BACKUP', 'xml')), '<?xml version="1.0" encoding="utf-8"?>\n<!-- Parsed by tosabbreviator v' + version + ' -->\n' + xml, function() {
 				doneCount++;
 				console.log(doneCount + ' out of 3 files completed.');
 				if (doneCount == 3) {
