@@ -140,6 +140,7 @@ let forcechanges = {
 	"29": "Result: Jugg",
 	"37": "Results: Framer/Vamp/Jest (possibly framed)",
 	"88": "You shot yourself.",
+	"126": "You were attacked by the CL.",
 	"104": "You can attack tonight.",
 	"145": "Not enough good roles to have a vision.",
 	"146": "Not enough people alive to have a vision.",
