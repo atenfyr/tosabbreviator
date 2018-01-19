@@ -17,10 +17,9 @@ if (!fs.existsSync(homedir + '/.tosabbreviator')) {
 
 let config = JSON.parse(fs.readFileSync(homedir + '/.tosabbreviator'));
 
-let version = '2.0.0';
+let version = '2.1.0';
 let writtenFor = 8298;
-let waitingForKey = false;
-let ynPrompt = false;
+let waitingForKey, ynPrompt, disabled, pathError = false;
 
 let savelink = "C:/Program Files (x86)/Steam/steamapps/common/Town of Salem/XMLData/Localization/en-US/"
 
@@ -436,18 +435,28 @@ function getRandomInt(min, max) {
 }
 function displayHeader() {
 	console.log('---tosabbreviator v' + version + '---');
-	console.log('----Written by Atenfyr----\n')
+	console.log('----Written by Atenfyr----\n');
 }
-function waitForKey(cb) {
-	console.log('\nPress any key to continue.');
-	doneCount = 0;
-	waitingForKey = true;
+function waitForKey(terminating) {
+	waitingForKey = false;
+	if (terminating) {
+		console.log('\nPress any key to exit.');
+
+		process.stdin.setRawMode(true);
+		process.stdin.resume();
+		process.stdin.on('data', process.exit.bind(process, 0));
+	} else {
+		console.log('\nPress any key to continue.');
+		doneCount = 0;
+		waitingForKey = true;
+	}
 }
 
 function revertConv() {
 	if (!fs.existsSync(savelink + 'Game.BACKUP') || !fs.existsSync(savelink + 'Gui.BACKUP')) {
 		console.log('Backup files are not present. You can do this in Steam; right-click Town of Salem\nin your games menu, click "Properties," click on the tab "Local Files," and click "Verify Integrity of Game Files."');
 	} else {
+		disabled = true;
 		console.log("Restoring backups..");
 		fs.unlinkSync(savelink + 'Game.xml');
 		fs.copySync(path.resolve(__dirname, (savelink + 'Game.BACKUP')), savelink + 'Game.xml');
@@ -466,9 +475,11 @@ function revertConv() {
 		}
 		console.log("3 out of 3 files completed.");
 		console.log('Successfully restored all backups.');
+		disabled = false;
 	}
 }
 function doConversion() {
+	disabled = true;
 	if (!fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
 		console.log("Backing up files..");
 		fs.copySync(path.resolve(__dirname, (savelink + 'Game.xml')), savelink + 'Game.BACKUP');
@@ -492,7 +503,7 @@ function doVersionCheck(cb) {
 			if (dsplit[i].indexOf("<Version>") != -1) {
 				latestN = Number(dsplit[i].replace(/[\D]/g, ""));
 				if (cb) {
-					return cb(latestN)
+					return cb(latestN);
 				} else {
 					console.log("Installed: " + latestN);
 					console.log("Updated as of: " + writtenFor);
@@ -564,8 +575,8 @@ function lower(pp) {
 					}
 											
 					/*
-					0x549BF2 (Light Blue) = Investigative result
 					0xFFFF00 (Red) = Dangerous
+					0x549BF2 (Light Blue) = Investigative result
 					0x808080 (Grey) = Other
 					*/
 					if (result["Entries"]["Entry"][i]["Color"] && result["Entries"]["Entry"][i]["id"][0] != "81" && result["Entries"]["Entry"][i]["id"][0] != "100") {
@@ -628,6 +639,7 @@ function lower(pp) {
 				console.log(doneCount + ' out of 3 files completed.');
 				if (doneCount == 3) {
 					console.log('Finished conversion.');
+					disabled = false;
 					waitForKey();
 				}
 			})
@@ -651,39 +663,57 @@ if (config['steampath']) {
 		}
 		savelink = pathprefix + '/steamapps/common/Town of Salem/XMLData/Localization/en-US/';
 		if (!(fs.existsSync(savelink))) {
-			console.log('Invalid path. Please run this tool again and retry.');
-			process.exit();
+			console.clear();
+			displayHeader();
+
+			console.log('Invalid path. Are you sure you have Town of Salem for Steam installed on your system? Please reboot this tool and try again.');
+			waitForKey(true);
+			pathError = true;
+			disabled = true;
+		} else {
+			config['steampath'] = pathprefix;
 		}
-		config['steampath'] = pathprefix;
 	} else {
-		config['steampath'] = 'default';
+		if (!(fs.existsSync(savelink))) {
+			console.clear();
+			displayHeader();
+
+			console.log('Could not find default path. Please re-run this program and type in your Steam path.');
+			waitForKey(true);
+			pathError = true;
+			disabled = true;
+		} else {
+			config['steampath'] = 'default';
+		}
 	}
 	jf.writeFileSync(homedir + '/.tosabbreviator', config);
 }
 
-console.clear();
-displayHeader();
-doVersionCheck(function(v) {
-	if (config["latest"]) {
-		if (v != config["latest"]) {
-			if (fs.existsSync(savelink + 'Game.BACKUP')) {
-				fs.unlinkSync(savelink + 'Game.BACKUP');
+if (!pathError) {
+	console.clear();
+	displayHeader();
+	doVersionCheck(function(v) {
+		if (config["latest"]) {
+			if (v != config["latest"]) {
+				if (fs.existsSync(savelink + 'Game.BACKUP')) {
+					fs.unlinkSync(savelink + 'Game.BACKUP');
+				}
+				if (fs.existsSync(savelink + 'Gui.BACKUP')) {
+					fs.unlinkSync(savelink + 'Gui.BACKUP');
+				}
+				if (fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
+					fs.unlinkSync(savelink + '../GameLanguage.BACKUP');
+				}
+				console.log('\nNote: Town of Salem has updated, and all backup files have been removed.');
 			}
-			if (fs.existsSync(savelink + 'Gui.BACKUP')) {
-				fs.unlinkSync(savelink + 'Gui.BACKUP');
-			}
-			if (fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
-				fs.unlinkSync(savelink + '../GameLanguage.BACKUP');
-			}
-			console.log('\nNote: Town of Salem has updated, and all backup files have been removed.');
 		}
-	}
-	config["latest"] = v;
-	jf.writeFileSync(homedir + '/.tosabbreviator', config);
-});
-console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  e		exit this tool");
+		config["latest"] = v;
+		jf.writeFileSync(homedir + '/.tosabbreviator', config);
+	});
+	console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  e		exit this tool");
+}
 process.stdin.addListener("data", function(d) {
-	if (d) {
+	if (d && !disabled) {
 		if (waitingForKey) {
 			console.clear();
 			displayHeader();
