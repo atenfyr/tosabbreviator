@@ -12,7 +12,7 @@ The latest experimental source code can be downloaded with [this link.](https://
 
 ## Changes
 Here is a list of all the changes that this tool makes to the language files of Town of Salem.
-- All roles except the Jester are abbreviated (apart from Investigator and Consigliere results, where Jester is abbreviated to Jest), and "Pestilence, Horseman of the Apocalypse" is shortened to just "Pestilence."
+- All roles are abbreviated, and "Pestilence, Horseman of the Apocalypse" is shortened to just "Pestilence."
 - Blackmailed is abbreviated to BM'd, and roleblocked is abbreviated to RB'd. Not suspicious is abbreviated to ns/gf.
 - All exclamation points have been switched out for full stops, as after enough gameplay, none of the status messages warrant overexcitement.
 - Role cards have been completely revamped. Role cards show their Investigator results (a role in brackets means that it only will show up in the Coven expansion), traits such as "RB Immunity", uniqueness, action priority, and their common abbreviation, rather than simply how to play the role.

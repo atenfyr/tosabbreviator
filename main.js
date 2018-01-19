@@ -56,6 +56,7 @@ let changes = { // Case sensitive
 	"Coven Leader":"CL",
 	"Necromancer":"Necro",
 	"Potion Master":"PM",
+	"Jester":"Jest",
 	"investigator":"invest",
 	"lookout":"lo",
 	"psychic":"psy",
@@ -86,10 +87,10 @@ let changes = { // Case sensitive
 	"coven leader":"cl",
 	"necromancer":"necro",
 	"potion master":"pm",
+	"jester":"jest",
 	"An Amne": "An amne",
 	"An Arso": "An arso",
 	"Your target's defense was too strong to kill": "Your target was immune",
-	"The jester will get his revenge from the grave": "Good job, you lynched the Jester",
 	"town member": "townie",
 	"Pestilence, Horseman of the Apocalypse": "Pestilence",
 	"Blackmailed": "BM'd",
@@ -129,6 +130,7 @@ let changes2 = { // Not case sensitive
 	"gasoline": "gas",
 	" to another location": "",
 	"bulletproof vest": "vest",
+	"the Jest": "a Jest",
 	"!": "."
 }
 let investResults = {
@@ -395,7 +397,6 @@ let guichanges = {
 	"VIPTarget": "%name% is the VIP.",
 	"Vampire Wins": "Vamps Win",
 	"The Coven Wins": "Coven Wins",
-	"Jester Wins": "Jest Wins",
 	"JuggernautFeedback1": "You can now attack every night.",
 	"JuggernautFeedback2": "You now have Basic defense.",
 	"JuggernautFeedback3": "You can now Rampage.",
@@ -410,6 +411,7 @@ let forcechanges = {
 	"29": "Result: Jugg",
 	"37": "Results: Framer/Vamp/Jest (possibly framed)",
 	"88": "You shot yourself.",
+	"98": "You lynched a Jest.",
 	"102": "Result: WW",
 	"104": "You can attack tonight.",
 	"126": "You were attacked by the CL.",
