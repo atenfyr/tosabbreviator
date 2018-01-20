@@ -10,7 +10,8 @@
     "url": "https://github.com/atenfyr/tosabbreviator.git"
   },
   "scripts": {
-    "start": "npm install && node main"
+    "start": "npm install && node main",
+    "build": "nexe -i main.js -o tosabbreviator_XYZ.exe --fake-argv hello"
   },
   "dependencies": {
     "fs-extra": "^5.0.0",
