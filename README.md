@@ -21,6 +21,5 @@ Here is a list of all the changes that this tool makes to the language files of 
 - Framer/Vamp/Jest results also state that it is possible that the target was framed.
 - Spy and Lookout visit messages say "Mafia visits," "Coven visits," and "Target visited by" rather than "visited by a member of the mafia/coven" and "... visited your target last night!"
 - When the Spy bugs a target, it gives the message that would have appeared to the target and puts "On target:" in front, rather than changing all the words to refer to "them" rather than "you."
-- When somebody is saved by a Doctor, it says that they were healed rather than "nursed back to health."
 - After cleaning as a Janitor, the game simply tells you the role and where to see their will, cutting out all the clutter that is normally in chat after cleaning a target.
 - Many more minor changes that enhance the game just a little bit.
