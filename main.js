@@ -17,7 +17,7 @@ if (!fs.existsSync(homedir + '/.tosabbreviator')) {
 
 let config = JSON.parse(fs.readFileSync(homedir + '/.tosabbreviator'));
 
-let version = '2.1.0';
+let version = '2.2.0';
 let writtenFor = 8298;
 let waitingForKey, ynPrompt, disabled, pathError = false;
 
