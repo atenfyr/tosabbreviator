@@ -57,6 +57,7 @@ let changes = { // Case sensitive
 	"Necromancer":"Necro",
 	"Potion Master":"PM",
 	"Jester":"Jest",
+	"Hex Master":"HM",
 	"investigator":"invest",
 	"lookout":"lo",
 	"psychic":"psy",
@@ -88,6 +89,7 @@ let changes = { // Case sensitive
 	"necromancer":"necro",
 	"potion master":"pm",
 	"jester":"jest",
+	"hex master":"hm",
 	"An Amne": "An amne",
 	"An Arso": "An arso",
 	"Your target's defense was too strong to kill": "Your target was immune",
@@ -175,10 +177,10 @@ let investResults = {
 	"Executioner": "Sheriff/Exe/WW (Poisoner)",
 	"Werewolf": "Sheriff/Exe/WW (Poisoner)",
 	"Poisoner": "Sheriff/Exe/WW/Poisoner",
-	"Framer": "Framer/Vamp/Jest (Hex Master)",
-	"Vampire": "Framer/Vamp/Jest (Hex Master)",
-	"Jester": "Framer/Vamp/Jest (Hex Master)",
-	"HexMaster": "Framer/Vamp/Jest/Hex Master",
+	"Framer": "Framer/Vamp/Jest (HM)",
+	"Vampire": "Framer/Vamp/Jest (HM)",
+	"Jester": "Framer/Vamp/Jest (HM)",
+	"HexMaster": "Framer/Vamp/Jest/HM",
 	"Lookout": "LO/Forger/Witch (CL)",
 	"Forger": "LO/Forger/Witch (CL)",
 	"Witch": "LO/Forger/Witch",
@@ -230,7 +232,7 @@ let abbreviations = {
 	"Framer": "N/A",
 	"Vampire": "Vamp",
 	"Jester": "Jest",
-	"HexMaster": "Hex",
+	"HexMaster": "HM",
 	"Lookout": "LO",
 	"Forger": "N/A",
 	"Witch": "N/A",
@@ -423,13 +425,13 @@ let forcechanges = {
 	"Coven31": "Results: Vig/Vet/Mafioso/Pirate/Ambusher",
 	"Coven32": "Results: Med/Janitor/Retri/Necro/Trapper",
 	"Coven33": "Results: Surv/VH/Medusa/Psy",
-	"Coven37": "Results: Framer/Vamp/Jest/Hex Master (possibly framed)"
+	"Coven37": "Results: Framer/Vamp/Jest/HM (possibly framed)"
 }
 let forceDangerous = [
 	107, 108
 ];
 
-let dangerwords = ["haunt", "consume", "control", "lynch", "staked", "die", "shot", "douse", "fire", "murder", "attack", "kill", "execute", "suicide", "guilt", "bm", "rb", "immune", "transport"];
+let dangerwords = ["haunt", "poison", "consume", "control", "lynch", "staked", "die", "shot", "shoot", "douse", "fire", "murder", "attack", "kill", "execute", "suicide", "guilt", "bm", "rb", "immune", "transport"];
 
 let doneCount = 0;
 
@@ -632,6 +634,7 @@ function lower(pp) {
 											
 					/*
 					0xFFFF00 (Red) = Dangerous
+					0x00FF00 (Green) = Healing
 					0x549BF2 (Light Blue) = Investigative result
 					0x808080 (Grey) = Other
 					*/
@@ -653,6 +656,9 @@ function lower(pp) {
 								result["Entries"]["Entry"][i]["Color"] = "0x808080";
 							}
 						}
+						if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("healed") != -1) && result["Entries"]["Entry"][i]["Color"][0] != "0x549BF2") {
+							result["Entries"]["Entry"][i]["Color"] = "0x00FF00";
+						}
 					}
 				}
 			} else if (fn == "Gui.BACKUP") {
@@ -660,6 +666,8 @@ function lower(pp) {
 					if (result["Entries"]["Entry"][i]["Text"] && result["Entries"]["Entry"][i]["id"]) {
 						if (guichanges[result["Entries"]["Entry"][i]["id"]]) {
 							result["Entries"]["Entry"][i]["Text"][0] = guichanges[result["Entries"]["Entry"][i]["id"]];
+						} else if (result["Entries"]["Entry"][i]["id"][0].substring(0,3) == "Tip") {
+							result["Entries"]["Entry"][i]["Text"][0] = " ";
 						} else if ((result["Entries"]["Entry"][i]["id"][0].indexOf("RoleCardAbility") != -1)) {
 							let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAbility", "").replace(/\d/g, '');
 							result["Entries"]["Entry"][i]["Text"][0] = investResults[role] || "Error!";
