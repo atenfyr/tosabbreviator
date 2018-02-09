@@ -431,7 +431,7 @@ let forceDangerous = [
 	107, 108
 ];
 
-let dangerwords = ["haunt", "poison", "consume", "control", "lynch", "staked", "die", "shot", "shoot", "douse", "fire", "murder", "attack", "kill", "execute", "suicide", "guilt", "bm", "rb", "immune", "transport"];
+let dangerwords = ["haunt", "triggered", "poison", "consume", "control", "lynch", "staked", "die", "shot", "shoot", "douse", "fire", "murder", "attack", "kill", "execute", "suicide", "guilt", "bm", "rb", "immune", "transport"];
 
 let doneCount = 0;
 
