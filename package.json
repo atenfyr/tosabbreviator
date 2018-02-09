@@ -16,6 +16,7 @@
   "dependencies": {
     "fs-extra": "^5.0.0",
     "jsonfile": "^4.0.0",
+    "log": "^1.4.0",
     "prompt-sync": "^4.1.5",
     "xml2js": "^0.4.19"
   }

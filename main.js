@@ -8,18 +8,25 @@ const path = require('path');
 const xml2js = require('xml2js');
 const prompt = require('prompt-sync')();
 const jf = require('jsonfile');
+const Log = require('log');
 
-const homedir = require('os').homedir();
+let homedir = require('os').homedir();
 
-if (!fs.existsSync(homedir + '/.tosabbreviator')) {
-	fs.writeFileSync(homedir + '/.tosabbreviator', '{}');
+if (!fs.existsSync(homedir + '/tosabbreviator')) {
+    fs.mkdirSync(homedir + '/tosabbreviator');
 }
 
-let config = JSON.parse(fs.readFileSync(homedir + '/.tosabbreviator'));
+homedir = homedir + '/tosabbreviator/';
 
-let version = '2.2.0';
+if (!fs.existsSync(homedir + 'main.config')) {
+	fs.writeFileSync(homedir + 'main.config', '{}');
+}
+
+let config = JSON.parse(fs.readFileSync(homedir + 'main.config'));
+
+let version = '3.0.0';
 let writtenFor = 8298;
-let waitingForKey, ynPrompt, disabled, pathError = false;
+let waitingForKey, ynPrompt, disabled, pathError, hasCrashed = false;
 
 let defaultlink = "C:/Program Files (x86)/Steam/steamapps/common/Town of Salem/XMLData/Localization/en-US/";
 let savelink = defaultlink;
@@ -458,19 +465,23 @@ function waitForKey(terminating) {
 }
 
 function revertConv() {
-	if (!fs.existsSync(savelink + 'Game.BACKUP') || !fs.existsSync(savelink + 'Gui.BACKUP')) {
+	if (!fs.existsSync(savelink + 'Game.BACKUP') && !fs.existsSync(savelink + 'Gui.BACKUP') && !fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
 		console.log('Backup files are not present. You can do this in Steam; right-click Town of Salem\nin your games menu, click "Properties," click on the tab "Local Files," and click "Verify Integrity of Game Files."');
 	} else {
 		disabled = true;
 		console.log("Restoring backups..");
-		fs.unlinkSync(savelink + 'Game.xml');
-		fs.copySync(path.resolve(__dirname, (savelink + 'Game.BACKUP')), savelink + 'Game.xml');
-		fs.unlinkSync(savelink + 'Game.BACKUP');
+		if (fs.existsSync(savelink + 'Game.BACKUP')) {
+			fs.unlinkSync(savelink + 'Game.xml');
+			fs.copySync(path.resolve(__dirname, (savelink + 'Game.BACKUP')), savelink + 'Game.xml');
+			fs.unlinkSync(savelink + 'Game.BACKUP');
+		}
 		console.log("1 out of 3 files completed.");
 
-		fs.unlinkSync(savelink + 'Gui.xml');
-		fs.copySync(path.resolve(__dirname, (savelink + 'Gui.BACKUP')), savelink + 'Gui.xml');
-		fs.unlinkSync(savelink + 'Gui.BACKUP');
+		if (fs.existsSync(savelink + 'Gui.BACKUP')) {
+			fs.unlinkSync(savelink + 'Gui.xml');
+			fs.copySync(path.resolve(__dirname, (savelink + 'Gui.BACKUP')), savelink + 'Gui.xml');
+			fs.unlinkSync(savelink + 'Gui.BACKUP');
+		}
 		console.log("2 out of 3 files completed.");
 
 		if (fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
@@ -495,6 +506,10 @@ function doConversion() {
 		console.log("3 out of 3 files completed.");
 		console.log("Finished backing up files.\n");
 	}
+	newLogDir = new Date().toISOString().replace(/\./g, '-').replace(/\:/g, '-') + '.log';
+	log = new Log('info', fs.createWriteStream(homedir + newLogDir, 'utf8'));
+	log.info('Beginning conversion of game files.');
+
 	console.log("Beginning conversion.");
 	lower(savelink + 'Game.BACKUP');
 	lower(savelink + 'Gui.BACKUP');
@@ -571,7 +586,7 @@ function getPath(menu) {
 			process.stdout.write('\nSuccessfully changed Steam path.');
 		}
 	}
-	jf.writeFileSync(homedir + '/.tosabbreviator', config);
+	jf.writeFileSync(homedir + 'main.config', config);
 
 	if (menu) {
 		disabled = false;
@@ -579,135 +594,187 @@ function getPath(menu) {
 	}
 }
 
-
 var parser = new xml2js.Parser();
 function lower(pp) {
 	var fn = path.parse(pp)["base"];
 	fs.readFile(pp, function(err, data) {
-		parser.parseString(data, function (err, result) {
-			if (fn == "Game.BACKUP") {
-				for (var i in result["Entries"]["Entry"]) {
-					if (forcechanges[result["Entries"]["Entry"][i]["id"][0]]) {
-						result["Entries"]["Entry"][i]["Text"][0] = forcechanges[result["Entries"]["Entry"][i]["id"][0]];
-						if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Result: ") != -1) || (result["Entries"]["Entry"][i]["Text"][0].indexOf("Results: ") != -1)) {
-							result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
-						}
-					} else if (result["Entries"]["Entry"][i]["id"][0].substring(0,10) == "SpyResult_") {
-						var id = result["Entries"]["Entry"][i]["id"][0].substring(10);
-						for (var j in result["Entries"]["Entry"]) {
-							if (result["Entries"]["Entry"][j]["id"][0] == id) {
-								id = j;
-								break;
+		try {
+			if (hasCrashed) { return; }
+			parser.parseString(data, function (err, result) {
+				if (fn == "Game.BACKUP") {
+					for (var i in result["Entries"]["Entry"]) {
+						if (forcechanges[result["Entries"]["Entry"][i]["id"][0]]) {
+							log.info('Overriding data for entry %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
+							result["Entries"]["Entry"][i]["Text"][0] = forcechanges[result["Entries"]["Entry"][i]["id"][0]];
+							if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Result: ") != -1) || (result["Entries"]["Entry"][i]["Text"][0].indexOf("Results: ") != -1)) {
+								result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
 							}
-						}
-						result["Entries"]["Entry"][i]["Text"][0] = "On target: " + result["Entries"]["Entry"][id]["Text"][0].replace(/On target\: /g, "");
-						result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
-					} else if (result["Entries"]["Entry"][i]["Text"]) {
-						for (var j in changes) {
-							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "g"), changes[j]);
-						}
-						for (var j in changes2) {
-							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "gi"), changes2[j]);
-						}
-						if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Your target") !== -1) && (result["Entries"]["Entry"][i]["Text"][0].indexOf("They must be") !== -1)) {
-							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(/.+(\They must be a )/g, "Result: ").replace(/.+(\They must be an )/g, "Result: ").replace(/.+(\They must be the )/g, "Result: ").replace(/.+(\They must be )/g, "Result: ");
-							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].slice(0, -1);
-							result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
-
-							let abbreviatedRole = result["Entries"]["Entry"][i]["Text"][0].replace("Result: ", "").trim();
-							let nonAbbreviatedRole = abbreviatedRole;
-							for (var j in abbreviations) {
-								if (abbreviations[j].toLowerCase() == abbreviatedRole.toLowerCase()) {
-									nonAbbreviatedRole = j;
+						} else if (result["Entries"]["Entry"][i]["id"][0].substring(0,10) == "SpyResult_") {
+							log.info('Writing spy result for entry %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
+							var id = result["Entries"]["Entry"][i]["id"][0].substring(10);
+							for (var j in result["Entries"]["Entry"]) {
+								if (result["Entries"]["Entry"][j]["id"][0] == id) {
+									id = j;
 									break;
 								}
 							}
-
-							nonAbbreviatedRole = nonAbbreviatedRole.replace(/\s/g, '');
-							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0] + ' (' + (investResults[nonAbbreviatedRole] || "Error!").replace(/\(/g, '[').replace(/\)/g, ']') + ')';
-						} else if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Your target could be a") != -1)) {
-							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace("Your target could be a ", "Results: ").replace("Your target could be an ", "Results: ").replace(/\, /g, "/").replace(/or /g, "");
-							result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].slice(0, -1);
+							result["Entries"]["Entry"][i]["Text"][0] = "On target: " + result["Entries"]["Entry"][id]["Text"][0].replace(/On target\: /g, "");
 							result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
-						}
-					}
-											
-					/*
-					0xFFFF00 (Red) = Dangerous
-					0x00FF00 (Green) = Healing
-					0x549BF2 (Light Blue) = Investigative result
-					0x808080 (Grey) = Other
-					*/
-					if (result["Entries"]["Entry"][i]["Color"] && result["Entries"]["Entry"][i]["id"][0] != "81" && result["Entries"]["Entry"][i]["id"][0] != "100") {
-						if ((result["Entries"]["Entry"][i]["Color"][0] != "0x549BF2") && (result["Entries"]["Entry"][i]["Color"][0] != "0x00FF00")) {
-							var text = result["Entries"]["Entry"][i]["Text"][0];
-							var danger = false;
-							for (var j in dangerwords) {
-								if (text.toLowerCase().indexOf(dangerwords[j].toLowerCase()) !== -1) {
-									result["Entries"]["Entry"][i]["Color"] = "0xFF0000";
-									danger = true;
-									break;
-								}
-							}
-							
-							if (forceDangerous.includes(Number(result["Entries"]["Entry"][i]["id"][0]))) {
-								result["Entries"]["Entry"][i]["Color"] = "0xFF0000";
-							} else if (!danger) {
-								result["Entries"]["Entry"][i]["Color"] = "0x808080";
-							}
-						}
-						if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("healed") != -1) && result["Entries"]["Entry"][i]["Color"][0] != "0x549BF2") {
-							result["Entries"]["Entry"][i]["Color"] = "0x00FF00";
-						}
-					}
-				}
-			} else if (fn == "Gui.BACKUP") {
-				for (var i in result["Entries"]["Entry"]) {
-					if (result["Entries"]["Entry"][i]["Text"] && result["Entries"]["Entry"][i]["id"]) {
-						if (guichanges[result["Entries"]["Entry"][i]["id"]]) {
-							result["Entries"]["Entry"][i]["Text"][0] = guichanges[result["Entries"]["Entry"][i]["id"]];
-						} else if (result["Entries"]["Entry"][i]["id"][0].substring(0,3) == "Tip") {
-							result["Entries"]["Entry"][i]["Text"][0] = " ";
-						} else if ((result["Entries"]["Entry"][i]["id"][0].indexOf("RoleCardAbility") != -1)) {
-							let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAbility", "").replace(/\d/g, '');
-							result["Entries"]["Entry"][i]["Text"][0] = investResults[role] || "Error!";
-						} else if ((result["Entries"]["Entry"][i]["id"][0].indexOf("RoleCardAttribute") != -1)) {
-							let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAttribute", "").replace(/\d/g, '');
-							if (role == "Executioner") {
-								result["Entries"]["Entry"][i]["Text"][0] = ("- Target: %name%\n- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniques[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!") + " (1 is highest possible)");
-							} else {
-								result["Entries"]["Entry"][i]["Text"][0] = ("- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniques[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!") + " (1 is highest possible)");
-							}
-							for (var j in traits[role]) {
-								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0] + "\n- " + traits[role][j];
-							}
-						} else {
+						} else if (result["Entries"]["Entry"][i]["Text"]) {
+							log.info('Applying word replacements to %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
 							for (var j in changes) {
 								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "g"), changes[j]);
 							}
 							for (var j in changes2) {
 								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "gi"), changes2[j]);
 							}
+							if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Your target") !== -1) && (result["Entries"]["Entry"][i]["Text"][0].indexOf("They must be") !== -1)) {
+								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(/.+(\They must be a )/g, "Result: ").replace(/.+(\They must be an )/g, "Result: ").replace(/.+(\They must be the )/g, "Result: ").replace(/.+(\They must be )/g, "Result: ");
+								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].slice(0, -1);
+								result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
+
+								let abbreviatedRole = result["Entries"]["Entry"][i]["Text"][0].replace("Result: ", "").trim();
+								let nonAbbreviatedRole = abbreviatedRole;
+								for (var j in abbreviations) {
+									if (abbreviations[j].toLowerCase() == abbreviatedRole.toLowerCase()) {
+										nonAbbreviatedRole = j;
+										break;
+									}
+								}
+
+								nonAbbreviatedRole = nonAbbreviatedRole.replace(/\s/g, '');
+								log.info('Adding fake invest results for consig/witch results on %s', nonAbbreviatedRole);
+								if (!investResults[nonAbbreviatedRole]) {
+									log.warning('Could not find invest results for role ' + nonAbbreviatedRole);
+								}
+								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0] + ' (' + (investResults[nonAbbreviatedRole] || "Error!").replace(/\(/g, '[').replace(/\)/g, ']') + ')';
+							} else if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Your target could be a") != -1)) {
+								log.info('Abbreviating invest results for ID %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
+								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace("Your target could be a ", "Results: ").replace("Your target could be an ", "Results: ").replace(/\, /g, "/").replace(/or /g, "");
+								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].slice(0, -1);
+								result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
+							}
+						}
+												
+						/*
+						0xFFFF00 (Red) = Dangerous
+						0x00FF00 (Green) = Healing
+						0x549BF2 (Light Blue) = Investigative result
+						0x808080 (Grey) = Other
+						*/
+						if (result["Entries"]["Entry"][i]["Color"] && result["Entries"]["Entry"][i]["id"][0] != "81" && result["Entries"]["Entry"][i]["id"][0] != "100") {
+							if ((result["Entries"]["Entry"][i]["Color"][0] != "0x549BF2") && (result["Entries"]["Entry"][i]["Color"][0] != "0x00FF00")) {
+								var text = result["Entries"]["Entry"][i]["Text"][0];
+								var danger = false;
+								for (var j in dangerwords) {
+									if (text.toLowerCase().indexOf(dangerwords[j].toLowerCase()) !== -1) {
+										result["Entries"]["Entry"][i]["Color"] = "0xFF0000";
+										danger = true;
+										break;
+									}
+								}
+								
+								if (forceDangerous.includes(Number(result["Entries"]["Entry"][i]["id"][0]))) {
+									log.info('Flagging message %s as dangerous in Game.xml', result["Entries"]["Entry"][i]['Text'][0]);
+									result["Entries"]["Entry"][i]["Color"] = "0xFF0000";
+								} else if (!danger) {
+									log.info('Flagging message %s as mundane in Game.xml', result["Entries"]["Entry"][i]['Text'][0]);
+									result["Entries"]["Entry"][i]["Color"] = "0x808080";
+								}
+							}
+							if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("healed") != -1) && result["Entries"]["Entry"][i]["Color"][0] != "0x549BF2") {
+								log.info('Flagging message %s as healing in Game.xml', result["Entries"]["Entry"][i]['Text'][0]);
+								result["Entries"]["Entry"][i]["Color"] = "0x00FF00";
+							}
 						}
 					}
+				} else if (fn == "Gui.BACKUP") {
+					for (var i in result["Entries"]["Entry"]) {
+						if (result["Entries"]["Entry"][i]["Text"] && result["Entries"]["Entry"][i]["id"]) {
+							if (guichanges[result["Entries"]["Entry"][i]["id"]]) {
+								log.info('Overriding data for entry %s in Gui.xml', result["Entries"]["Entry"][i]['id']);
+								result["Entries"]["Entry"][i]["Text"][0] = guichanges[result["Entries"]["Entry"][i]["id"]];
+							} else if (result["Entries"]["Entry"][i]["id"][0].substring(0,3) == "Tip") {
+								log.info('Erasing data for tip %s', result["Entries"]["Entry"][i]["id"]);
+								result["Entries"]["Entry"][i]["Text"][0] = " ";
+							} else if ((result["Entries"]["Entry"][i]["id"][0].indexOf("RoleCardAbility") != -1)) {
+								let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAbility", "").replace(/\d/g, '');
+								log.info('Overriding investigator results for %s role card', role);
+								if (!investResults[role]) {
+									log.warning('Could not find invest results for role ' + role);
+								}
+								result["Entries"]["Entry"][i]["Text"][0] = investResults[role] || "Error!";
+							} else if ((result["Entries"]["Entry"][i]["id"][0].indexOf("RoleCardAttribute") != -1)) {
+								let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAttribute", "").replace(/\d/g, '');
+								log.info('Overriding traits for %s role card', role);
+								if (role == "Executioner") {
+									result["Entries"]["Entry"][i]["Text"][0] = ("- Target: %name%\n- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniques[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!") + " (1 is highest possible)");
+								} else {
+									result["Entries"]["Entry"][i]["Text"][0] = ("- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniques[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!") + " (1 is highest possible)");
+								}
+								if (!abbreviations[role]) {
+									log.warning('Could not find an abbreviation for role ' + role);
+								}
+								if (!priority[role]) {
+									log.warning('Could not find a priority for role ' + role);
+								}
+								for (var j in traits[role]) {
+									result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0] + "\n- " + traits[role][j];
+								}
+							} else {
+								for (var j in changes) {
+									result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "g"), changes[j]);
+								}
+								for (var j in changes2) {
+									result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "gi"), changes2[j]);
+								}
+								log.info('Applying word replacements to %s in Gui.xml', result["Entries"]["Entry"][i]['id']);
+							}
+						}
+					}
+				} else if (fn == "GameLanguage.BACKUP") {
+					result["Entries"]["Entry"][1]["Text"][0] = "English (Abbr.)";
+					result["Entries"]["Entry"][1]["Description"][0] = "English (Abbr.)";
+					fn = "../" + fn;
+					log.info('Overriding language name in GameLanguage.xml');
+					//forceCrash();
 				}
-			} else if (fn == "GameLanguage.BACKUP") {
-				result["Entries"]["Entry"][1]["Text"][0] = "English (Abbr.)";
-				result["Entries"]["Entry"][1]["Description"][0] = "English (Abbr.)";
-				fn = "../" + fn;
+				var builder = new xml2js.Builder({"headless": true});
+				var xml = builder.buildObject(result);
+				fs.writeFile(savelink + (fn.replace('BACKUP', 'xml')), '<?xml version="1.0" encoding="utf-8"?>\n<!-- Parsed by tosabbreviator v' + version + ' -->\n' + xml, function() {
+					doneCount++;
+					if (!hasCrashed) {
+						log.info('Finished %s/3 files', doneCount);
+						console.log(doneCount + ' out of 3 files completed.');
+					}
+					if (doneCount == 3) {
+						console.log('Finished conversion.');
+						disabled = false;
+						waitForKey();
+					}
+				})
+			});
+		} catch(err) {
+			log.error('Unexpected error: ' + err);
+			console.clear();
+			displayHeader();
+			console.log('An unexpected error has occurred, and the conversion has halted.\n\nBeginning repair..');
+			hasCrashed = true;
+			disabled = false;
+			if (fs.existsSync(savelink + 'Game.BACKUP')) {
+				fs.unlinkSync(savelink + 'Game.BACKUP');
 			}
-			var builder = new xml2js.Builder({"headless": true});
-			var xml = builder.buildObject(result);
-			fs.writeFile(savelink + (fn.replace('BACKUP', 'xml')), '<?xml version="1.0" encoding="utf-8"?>\n<!-- Parsed by tosabbreviator v' + version + ' -->\n' + xml, function() {
-				doneCount++;
-				console.log(doneCount + ' out of 3 files completed.');
-				if (doneCount == 3) {
-					console.log('Finished conversion.');
-					disabled = false;
-					waitForKey();
-				}
-			})
-		});
+			console.log('1 out of 3 files completed.');
+			if (fs.existsSync(savelink + 'Gui.BACKUP')) {
+				fs.unlinkSync(savelink + 'Gui.BACKUP');
+			}
+			console.log('2 out of 3 files completed.');
+			if (fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
+				fs.unlinkSync(savelink + '../GameLanguage.BACKUP');
+			}
+			console.log('3 out of 3 files completed.');
+			console.log('Repair complete.\n\nPLEASE VERIFY THE INTEGRITY OF YOUR GAME FILES.\nTo do this, right-click Town of Salem in your Steam games menu, click "Properties," click on the tab "Local Files," and click "Verify Integrity of Game Files."');
+		}
 	});
 }
 
@@ -737,16 +804,19 @@ if (!pathError) {
 				if (fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
 					fs.unlinkSync(savelink + '../GameLanguage.BACKUP');
 				}
-				console.log('\nNote: Town of Salem has updated, and all backup files have been removed.');
+				console.log('\nNote: Town of Salem has updated, and all backup files have been removed. If this is not the case, then please verify the integrity of the game files.');
 			}
 		}
 		config["latest"] = v;
-		jf.writeFileSync(homedir + '/.tosabbreviator', config);
+		jf.writeFileSync(homedir + 'main.config', config);
 	});
 	console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  e		exit this tool");
 }
-process.stdin.addListener("data", function(d) {
-	if (d && !disabled) {
+
+process.stdin.on('data', function(d) {
+	if (hasCrashed) {
+		process.exit(0);
+	} else if (d && !disabled) {
 		if (waitingForKey) {
 			console.clear();
 			displayHeader();
