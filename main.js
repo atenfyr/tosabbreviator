@@ -528,7 +528,7 @@ function doVersionCheck(cb) {
                 latestN2 = config['latestversion'] || version;
                 jf.writeFileSync(homedir + 'main.config', config);
 				if (cb) {
-					return cb(latestN, latestN);
+					return cb(latestN, latestN2);
 				} else {
                     console.log('Latest tosabbreviator version: ' + latestN2);
                     console.log('Installed tosabbreviator version: ' + version);
