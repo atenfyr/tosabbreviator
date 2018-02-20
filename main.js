@@ -9,6 +9,7 @@ const xml2js = require('xml2js');
 const prompt = require('prompt-sync')();
 const jf = require('jsonfile');
 const Log = require('log');
+const request = require('request');
 
 let homedir = require('os').homedir();
 
@@ -24,9 +25,9 @@ if (!fs.existsSync(homedir + 'main.config')) {
 
 let config = JSON.parse(fs.readFileSync(homedir + 'main.config'));
 
-let version = '3.0.0';
+let version = 'v3.1.0';
 let writtenFor = 8552;
-let waitingForKey, ynPrompt, disabled, pathError, hasCrashed = false;
+let waitingForKey, ynPrompt, disabled, pathError, hasCrashed, developmentKey = false;
 
 let defaultlink = "C:/Program Files (x86)/Steam/steamapps/common/Town of Salem/XMLData/Localization/en-US/";
 let savelink = defaultlink;
@@ -446,7 +447,7 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 function displayHeader() {
-	console.log('---tosabbreviator v' + version + '---');
+	console.log('---tosabbreviator ' + version + '---');
 	console.log('----Written by Atenfyr----\n');
 }
 function waitForKey(terminating) {
@@ -739,7 +740,7 @@ function lower(pp) {
 				}
 				var builder = new xml2js.Builder({"headless": true});
 				var xml = builder.buildObject(result);
-				fs.writeFile(savelink + (fn.replace('BACKUP', 'xml')), '<?xml version="1.0" encoding="utf-8"?>\n<!-- Parsed by tosabbreviator v' + version + ' -->\n' + xml, function() {
+				fs.writeFile(savelink + (fn.replace('BACKUP', 'xml')), '<?xml version="1.0" encoding="utf-8"?>\n<!-- Parsed by tosabbreviator ' + version + ' -->\n' + xml, function() {
 					doneCount++;
 					if (!hasCrashed) {
 						console.log(doneCount + ' out of 3 files completed.');
@@ -797,7 +798,29 @@ if (!pathError) {
 		}
 		config["latest"] = v;
 		jf.writeFileSync(homedir + 'main.config', config);
-	});
+    });
+
+    if (!config['lastcheck']) {
+        config['lastcheck'] = 0;
+    }
+
+    if ((Date.now()-config['lastcheck']) >= 72000000) {
+        request.get({
+            url: 'https://api.github.com/repos/atenfyr/tosabbreviator/releases/latest' + (developmentKey?("?access_token=" + developmentKey):""),
+            headers: {'User-Agent': 'tosabbreviator ' + version},
+            json: true
+        }, function(error, response, body) {
+            if (error || response['body']['message']) {
+                console.log('\nNote: Failed to check latest tosabbreviator version.');
+            } else {
+                if (response['body']['tag_name'] !== version) {
+                    console.log('\nNote: A new version of tosabbreviator is available.');
+                }
+                config['lastcheck'] = Date.now();
+                jf.writeFileSync(homedir + 'main.config', config);
+            }
+        });
+    }
 	console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  e		exit this tool");
 }
 
