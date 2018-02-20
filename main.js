@@ -906,6 +906,9 @@ process.stdin.on('data', function(d) {
                 case 'h':
                     openurl.open('https://github.com/atenfyr/tosabbreviator/releases/latest');
                     break;
+                case 'l': // open logs
+                    openurl.open("file://" + homedir);
+                    break;
 				case 'e':
 					process.exit();
 					break;
