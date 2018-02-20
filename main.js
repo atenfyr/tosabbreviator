@@ -797,7 +797,7 @@ if (!pathError) {
 	doVersionCheck(function(v) {
 		if (config["latest"]) {
 			if (v != config["latest"]) {
-				console.log('\nNote: Town of Salem has updated. If possible, it is highly recommended to repair the installation by pressing "P."');
+				console.log('\nNote: Town of Salem has updated. If possible, it is highly recommended to repair the installation by pressing "P" and to update your version of tosabbreviator.');
 			}
 		}
 		config["latest"] = v;
