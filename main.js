@@ -808,7 +808,7 @@ if (!pathError) {
         config['lastcheck'] = 0;
     }
 
-    if (((Date.now()-config['lastcheck']) >= 72000000) && !config["downloadLink"]) {
+    if (((Date.now()-config['lastcheck']) >= 72000000) && !config["downloadlink"]) {
         request.get({
             url: 'https://api.github.com/repos/atenfyr/tosabbreviator/releases/latest' + (developmentKey?("?access_token=" + developmentKey):""),
             headers: {'User-Agent': 'tosabbreviator ' + version},
@@ -818,7 +818,7 @@ if (!pathError) {
                 console.log('\nNote: Failed to check latest tosabbreviator version.');
             } else {
                 if (response['body']['tag_name'] !== version) {
-                    config["downloadLink"] = response['body']['assets'][0]['browser_download_url'];
+                    config["downloadlink"] = response['body']['assets'][0]['browser_download_url'].replace('https://github.com/atenfyr/tosabbreviator/releases/download/', '');
                     console.log('\nNote: A new version of tosabbreviator is available. Press the "F" key to download it.');
                 }
                 config['lastcheck'] = Date.now();
@@ -826,7 +826,7 @@ if (!pathError) {
             }
         });
     }
-    if (config["downloadLink"]) {
+    if (config["downloadlink"]) {
         console.log('\nNote: A new version of tosabbreviator is available. Press the "F" key to download it.');
     }
 }
@@ -916,19 +916,21 @@ process.stdin.on('data', function(d) {
                     openurl.open("file://" + homedir);
                     break;
                 case 'f': // download if available
-                    if (config["downloadLink"]) {
+                    if (config["downloadlink"]) {
                         console.clear();
                         displayHeader();
                         console.log('Downloading..');
 
-                        let productionFilename = path.basename(url.parse(config['downloadLink']).pathname);                            
-                        request(config['downloadLink']).pipe(fs.createWriteStream(productionFilename)).on('close', function() {
+                        config['downloadlink'] = 'https://github.com/atenfyr/tosabbreviator/releases/download/' + config['downloadlink'];
+
+                        let productionFilename = path.basename(url.parse(config['downloadlink']).pathname);                            
+                        request(config['downloadlink']).pipe(fs.createWriteStream(productionFilename)).on('close', function() {
                             console.clear();
                             displayHeader();
                             console.log('Saved to ' + productionFilename);
                             waitForKey();
                         });
-                        delete config['downloadLink'];
+                        delete config['downloadlink'];
                         jf.writeFileSync(homedir + 'main.config', config);
                     }
                     break;
