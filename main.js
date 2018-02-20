@@ -808,7 +808,7 @@ if (!pathError) {
         config['lastcheck'] = 0;
     }
 
-    if (((Date.now()-config['lastcheck']) >= 72000000) && !config["hasDownloaded"]) {
+    if (((Date.now()-config['lastcheck']) >= 72000000) && !config["downloadLink"]) {
         request.get({
             url: 'https://api.github.com/repos/atenfyr/tosabbreviator/releases/latest' + (developmentKey?("?access_token=" + developmentKey):""),
             headers: {'User-Agent': 'tosabbreviator ' + version},
@@ -818,7 +818,7 @@ if (!pathError) {
                 console.log('\nNote: Failed to check latest tosabbreviator version.');
             } else {
                 if (response['body']['tag_name'] !== version) {
-                    config["hasDownloaded"] = response['body']['assets'][0]['browser_download_url'];
+                    config["downloadLink"] = response['body']['assets'][0]['browser_download_url'];
                     console.log('\nNote: A new version of tosabbreviator is available. Press the "F" key to download it.');
                 }
                 config['lastcheck'] = Date.now();
@@ -826,7 +826,7 @@ if (!pathError) {
             }
         });
     }
-    if (config["hasDownloaded"]) {
+    if (config["downloadLink"]) {
         console.log('\nNote: A new version of tosabbreviator is available. Press the "F" key to download it.');
     }
 }
@@ -916,19 +916,19 @@ process.stdin.on('data', function(d) {
                     openurl.open("file://" + homedir);
                     break;
                 case 'f': // download if available
-                    if (config["hasDownloaded"]) {
+                    if (config["downloadLink"]) {
                         console.clear();
                         displayHeader();
                         console.log('Downloading..');
 
-                        let productionFilename = path.basename(url.parse(config['hasDownloaded']).pathname);                            
-                        request(config['hasDownloaded']).pipe(fs.createWriteStream(productionFilename)).on('close', function() {
+                        let productionFilename = path.basename(url.parse(config['downloadLink']).pathname);                            
+                        request(config['downloadLink']).pipe(fs.createWriteStream(productionFilename)).on('close', function() {
                             console.clear();
                             displayHeader();
                             console.log('Saved to ' + productionFilename);
                             waitForKey();
                         });
-                        delete config['hasDownloaded'];
+                        delete config['downloadLink'];
                         jf.writeFileSync(homedir + 'main.config', config);
                     }
                     break;
