@@ -10,6 +10,7 @@ const prompt = require('prompt-sync')();
 const jf = require('jsonfile');
 const Log = require('log');
 const request = require('request');
+const openurl = require('openurl');
 
 let homedir = require('os').homedir();
 
@@ -821,7 +822,7 @@ if (!pathError) {
             }
         });
     }
-	console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  e		exit this tool");
+    console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  h             open latest release in browser\n  e		exit this tool");
 }
 
 process.stdin.on('data', function(d) {
@@ -831,7 +832,7 @@ process.stdin.on('data', function(d) {
 		if (waitingForKey) {
 			console.clear();
 			displayHeader();
-			console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  e		exit this tool");
+            console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  h             open latest release in browser\n  e		exit this tool");
 			waitingForKey = false;
 		} else if (ynPrompt) {
 			switch(d.toString().trim()) {
@@ -901,7 +902,10 @@ process.stdin.on('data', function(d) {
 					break;
 				case 'a':
 					getPath(true);
-					break;
+                    break;
+                case 'h':
+                    openurl.open('https://github.com/atenfyr/tosabbreviator/releases/latest');
+                    break;
 				case 'e':
 					process.exit();
 					break;
