@@ -28,7 +28,7 @@ if (!fs.existsSync(homedir + 'main.config')) {
 let config = JSON.parse(fs.readFileSync(homedir + 'main.config'));
 
 let version = 'v3.1.0';
-let writtenFor = 8552;
+let writtenFor = 8597;
 let waitingForKey, ynPrompt, disabled, pathError, hasCrashed, developmentKey = false;
 
 let defaultlink = "C:/Program Files (x86)/Steam/steamapps/common/Town of Salem/XMLData/Localization/en-US/";
