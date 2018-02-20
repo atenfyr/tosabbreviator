@@ -12,11 +12,11 @@ const Log = require('log');
 
 let homedir = require('os').homedir();
 
-if (!fs.existsSync(homedir + '/.tosabbreviator')) {
-    fs.mkdirSync(homedir + '/.tosabbreviator');
+if (!fs.existsSync(homedir + '/tosabbreviator')) {
+    fs.mkdirSync(homedir + '/tosabbreviator');
 }
 
-homedir = homedir + '/.tosabbreviator/';
+homedir = homedir + '/tosabbreviator/';
 
 if (!fs.existsSync(homedir + 'main.config')) {
 	fs.writeFileSync(homedir + 'main.config', '{}');

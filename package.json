@@ -9,14 +9,11 @@
     "type": "git",
     "url": "https://github.com/atenfyr/tosabbreviator.git"
   },
-  "scripts": {
-    "start": "npm install && node main",
-    "build": "nexe -i main.js -o tosabbreviator_XYZ.exe --fake-argv hello"
-  },
   "dependencies": {
     "fs-extra": "^5.0.0",
     "jsonfile": "^4.0.0",
     "log": "^1.4.0",
+    "nexe": "^2.0.0-rc.25",
     "prompt-sync": "^4.1.5",
     "xml2js": "^0.4.19"
   }
