@@ -25,7 +25,7 @@ if (!fs.existsSync(homedir + 'main.config')) {
 let config = JSON.parse(fs.readFileSync(homedir + 'main.config'));
 
 let version = '3.0.0';
-let writtenFor = 8298;
+let writtenFor = 8552;
 let waitingForKey, ynPrompt, disabled, pathError, hasCrashed = false;
 
 let defaultlink = "C:/Program Files (x86)/Steam/steamapps/common/Town of Salem/XMLData/Localization/en-US/";
@@ -621,7 +621,6 @@ function lower(pp) {
 							result["Entries"]["Entry"][i]["Text"][0] = "On target: " + result["Entries"]["Entry"][id]["Text"][0].replace(/On target\: /g, "");
 							result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
 						} else if (result["Entries"]["Entry"][i]["Text"]) {
-							log.info('Applying word replacements to %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
 							for (var j in changes) {
 								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "g"), changes[j]);
 							}
@@ -728,7 +727,6 @@ function lower(pp) {
 								for (var j in changes2) {
 									result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "gi"), changes2[j]);
 								}
-								log.info('Applying word replacements to %s in Gui.xml', result["Entries"]["Entry"][i]['id']);
 							}
 						}
 					}
@@ -744,7 +742,6 @@ function lower(pp) {
 				fs.writeFile(savelink + (fn.replace('BACKUP', 'xml')), '<?xml version="1.0" encoding="utf-8"?>\n<!-- Parsed by tosabbreviator v' + version + ' -->\n' + xml, function() {
 					doneCount++;
 					if (!hasCrashed) {
-						log.info('Finished %s/3 files', doneCount);
 						console.log(doneCount + ' out of 3 files completed.');
 					}
 					if (doneCount == 3) {
@@ -795,16 +792,7 @@ if (!pathError) {
 	doVersionCheck(function(v) {
 		if (config["latest"]) {
 			if (v != config["latest"]) {
-				if (fs.existsSync(savelink + 'Game.BACKUP')) {
-					fs.unlinkSync(savelink + 'Game.BACKUP');
-				}
-				if (fs.existsSync(savelink + 'Gui.BACKUP')) {
-					fs.unlinkSync(savelink + 'Gui.BACKUP');
-				}
-				if (fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
-					fs.unlinkSync(savelink + '../GameLanguage.BACKUP');
-				}
-				console.log('\nNote: Town of Salem has updated, and all backup files have been removed. If this is not the case, then please verify the integrity of the game files.');
+				console.log('\nNote: Town of Salem has updated. If possible, it is highly recommended to repair the installation by pressing "p."');
 			}
 		}
 		config["latest"] = v;
