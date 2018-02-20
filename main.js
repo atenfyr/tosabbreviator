@@ -816,7 +816,7 @@ if (!pathError) {
         config['lastcheck'] = 0;
     }
 
-    if (((Date.now()-config['lastcheck']) >= 1800000) && !config['downloadlink']) {
+    if (((Date.now()-config['lastcheck']) >= 1200000) && !config['downloadlink']) {
         request.get({
             url: 'https://api.github.com/repos/atenfyr/tosabbreviator/releases/latest' + (developmentKey?("?access_token=" + developmentKey):""),
             headers: {'User-Agent': 'tosabbreviator ' + version},
