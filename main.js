@@ -27,7 +27,7 @@ if (!fs.existsSync(homedir + 'main.config')) {
 
 let config = JSON.parse(fs.readFileSync(homedir + 'main.config'));
 
-let version = 'v3.1.0';
+let version = 'v3.1.1';
 let writtenFor = 8597;
 let waitingForKey, ynPrompt, disabled, pathError, hasCrashed, developmentKey = false;
 
@@ -524,19 +524,27 @@ function doVersionCheck(cb) {
 		let dsplit = data.toString().split("\n");
 		for (var i in dsplit) {
 			if (dsplit[i].indexOf("<Version>") != -1) {
-				latestN = Number(dsplit[i].replace(/[\D]/g, ""));
+                latestN = Number(dsplit[i].replace(/[\D]/g, ""));
+                latestN2 = config['latestversion'] || version;
+                jf.writeFileSync(homedir + 'main.config', config);
 				if (cb) {
-					return cb(latestN);
+					return cb(latestN, latestN);
 				} else {
-					console.log("Installed: " + latestN);
-					console.log("Updated as of: " + writtenFor);
-					if (latestN > writtenFor) {
-						console.log("This tool is outdated. If possible, fetch the latest one.");
-					} else if (writtenFor > latestN) {
-						console.log("Your Town of Salem version is outdated.");
-					} else {
-						console.log("You're good to go!");
-					}
+                    console.log('Latest tosabbreviator version: ' + latestN2);
+                    console.log('Installed tosabbreviator version: ' + version);
+					console.log('\nInstalled Town of Salem version: ' + latestN);
+					console.log('Supported Town of Salem version: ' + writtenFor + '\n');
+					if (latestN2 == version && latestN > writtenFor) {
+                        console.log('You have the latest version of tosabbreviator, but tosabbreviator has not been updated yet. If you have reviewed the patch notes and have not noticed any major change that would disrupt gameplay, you may continue using this version.');
+                    } else if (latestN2 != version && writtenFor > latestN) {
+                        console.log('Both your version of tosabbreviator and your version of Town of Salem are outdated. Press the "F" key on the homepage to update tosabbreviator.');
+                    } else if (latestN2 != version) {
+                        console.log('Your version of tosabbreviator is outdated. Press the "F" key on the homepage to update tosabbreviator.');
+                    } else if (writtenFor > latestN) {
+                        console.log('Your version of Town of Salem is outdated.');
+                    } else {
+                        console.log('You\'re good to go!');
+                    }
 					waitForKey();
 				}
 			}
@@ -792,7 +800,7 @@ if (config['steampath']) {
 if (!pathError) {
 	console.clear();
     displayHeader();
-    console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  h             open latest release in browser\n  e		exit this tool");
+    console.log("Keybinds:\n  c		convert files and exit this tool\n  v		compare version numbers\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  h             open latest release in browser\n  e		exit this tool");
 
 	doVersionCheck(function(v) {
 		if (config["latest"]) {
@@ -808,7 +816,7 @@ if (!pathError) {
         config['lastcheck'] = 0;
     }
 
-    if (((Date.now()-config['lastcheck']) >= 72000000) && !config["downloadlink"]) {
+    if (((Date.now()-config['lastcheck']) >= 3600000) && !config['downloadlink']) {
         request.get({
             url: 'https://api.github.com/repos/atenfyr/tosabbreviator/releases/latest' + (developmentKey?("?access_token=" + developmentKey):""),
             headers: {'User-Agent': 'tosabbreviator ' + version},
@@ -818,15 +826,16 @@ if (!pathError) {
                 console.log('\nNote: Failed to check latest tosabbreviator version.');
             } else {
                 if (response['body']['tag_name'] !== version) {
-                    config["downloadlink"] = response['body']['assets'][0]['browser_download_url'].replace('https://github.com/atenfyr/tosabbreviator/releases/download/', '');
+                    config['downloadlink'] = response['body']['assets'][0]['browser_download_url'].replace('https://github.com/atenfyr/tosabbreviator/releases/download/', '');
                     console.log('\nNote: A new version of tosabbreviator is available. Press the "F" key to download it.');
                 }
+                config['latestversion'] = response['body']['tag_name'];
                 config['lastcheck'] = Date.now();
                 jf.writeFileSync(homedir + 'main.config', config);
             }
         });
     }
-    if (config["downloadlink"]) {
+    if (config['downloadlink']) {
         console.log('\nNote: A new version of tosabbreviator is available. Press the "F" key to download it.');
     }
 }
@@ -838,7 +847,7 @@ process.stdin.on('data', function(d) {
 		if (waitingForKey) {
 			console.clear();
 			displayHeader();
-            console.log("Keybinds:\n  c		convert files and exit this tool\n  v		display town of salem version\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  h             open latest release in browser\n  e		exit this tool");
+            console.log("Keybinds:\n  c		convert files and exit this tool\n  v		compare version numbers\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  h             open latest release in browser\n  e		exit this tool");
 			waitingForKey = false;
 		} else if (ynPrompt) {
 			switch(d.toString().trim()) {
@@ -916,7 +925,7 @@ process.stdin.on('data', function(d) {
                     openurl.open("file://" + homedir);
                     break;
                 case 'f': // download if available
-                    if (config["downloadlink"]) {
+                    if (config['downloadlink']) {
                         console.clear();
                         displayHeader();
                         console.log('Downloading..');
