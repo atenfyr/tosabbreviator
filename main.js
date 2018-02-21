@@ -27,7 +27,7 @@ if (!fs.existsSync(homedir + 'main.config')) {
 
 let config = JSON.parse(fs.readFileSync(homedir + 'main.config'));
 
-let version = 'v3.1.1';
+let version = 'v3.1.2';
 let writtenFor = 8597;
 let waitingForKey, ynPrompt, disabled, pathError, hasCrashed, developmentKey = false;
 
