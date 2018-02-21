@@ -8,7 +8,7 @@ You can download the latest stable version of tosabbreviator [here](https://gith
 You can download the latest version of tosabbreviator [here](https://github.com/atenfyr/tosabbreviator/releases). Note that the mac version of tosabbreviator is untested, and may not work. Alternatively, if you have node.js installed on your system, you can download the source of the latest stable version [here](https://github.com/atenfyr/tosabbreviator/releases). Instead of downloading the .exe file, download the source code as a zip. Extract the folder inside the source zip and run "npm install" and then "node main" in your command line of choice. Note that the default is intended for Windows, and you will have to put in your own path.
 
 ## Installation (Experimental)
-Assuming that node.js installed, the latest experimental source code can be downloaded with [this link](https://github.com/atenfyr/tosabbreviator/archive/master.zip). After extracting the folder inside the zip file, run "npm install" and then "node main" in your command line of choice inside of the source folder. If you wish to build it into an executable file using nexe, run "node build help" for instructions.
+Assuming that node.js is installed, the latest experimental source code can be downloaded with [this link](https://github.com/atenfyr/tosabbreviator/archive/master.zip). After extracting the folder inside the zip file, run "npm install" and then "node main" in your command line of choice inside of the source folder. If you wish to build it into an executable file using nexe, run "node build help" for instructions.
 
 ## Changes
 Here is a list of all the changes that this tool makes to the language files of Town of Salem.
