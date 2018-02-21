@@ -1,5 +1,5 @@
 node_modules
-tosabbreviator*.exe
+tosabbreviator*
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
