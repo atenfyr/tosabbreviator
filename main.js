@@ -818,7 +818,7 @@ if (!pathError) {
         config['lastcheck'] = 0;
     }
 
-    if (((Date.now()-config['lastcheck']) >= 1200000) && !config['downloadlink']) {
+    if ((Date.now()-config['lastcheck']) >= 1200000) {
         request.get({
             url: 'https://api.github.com/repos/atenfyr/tosabbreviator/releases/latest' + (developmentKey?("?access_token=" + developmentKey):""),
             headers: {'User-Agent': 'tosabbreviator ' + version},
@@ -830,6 +830,10 @@ if (!pathError) {
                 if (response['body']['tag_name'] !== version) {
                     config['downloadlink'] = response['body']['assets'][0]['browser_download_url'].replace('https://github.com/atenfyr/tosabbreviator/releases/download/', '');
                     console.log('\nNote: A new version of tosabbreviator is available. Press the "F" key to download it.');
+                } else {
+                    if (config['downloadlink']) {
+                        delete config['downloadlink'];
+                    }
                 }
                 config['latestversion'] = response['body']['tag_name'];
                 config['lastcheck'] = Date.now();
