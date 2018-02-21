@@ -1,5 +1,6 @@
 node_modules
 tosabbreviator*
+build-dev.js
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
