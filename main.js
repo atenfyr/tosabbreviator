@@ -418,7 +418,7 @@ let guichanges = {
 	"The Coven Wins": "Coven Wins",
 	"JuggernautFeedback1": "You can now attack every night.",
 	"JuggernautFeedback2": "You now have Basic defense.",
-	"JuggernautFeedback3": "You can now Rampage.",
+	"JuggernautFeedback3": "You will now Rampage.",
     "JuggernautFeedback4": "You now have Unstoppable attack.",
     "PirateChooseAttackHeader": "Choose your attack:",
     "PirateChooseDefendHeader": "Choose your defense:",
