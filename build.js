@@ -30,5 +30,6 @@ compile({
     output: outputLocation,
     fakeArgv: 'production',
     loglevel: (process.argv[3] || 'info'),
-    target: (chosenTarget || process)
+    target: (chosenTarget || process),
+    resources: './config.js'
 });
