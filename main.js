@@ -421,7 +421,7 @@ let guichanges = {
 	"JuggernautFeedback3": "You can now Rampage.",
     "JuggernautFeedback4": "You now have Unstoppable attack.",
     "PirateChooseAttackHeader": "Choose your attack:",
-    "PirateChooseDefendHeader": "Choose your defence:",
+    "PirateChooseDefendHeader": "Choose your defense:",
     "PirateAttack1Notice": "You decided to use the rapier.",
     "PirateAttack2Notice": "You decided to use the scimitar.",
     "PirateAttack3Notice": "You decided to use the pistol.",
