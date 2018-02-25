@@ -25,15 +25,12 @@ if (!fs.existsSync(homedir + 'main.config')) {
 	fs.writeFileSync(homedir + 'main.config', '{}');
 }
 
+let doneCount = 0;
 let config = JSON.parse(fs.readFileSync(homedir + 'main.config'));
 let waitingForKey, ynPrompt, disabled, pathError, hasCrashed, developmentKey, justGotUpdate = false;
 
 let defaultlink = "C:/Program Files (x86)/Steam/steamapps/common/Town of Salem/XMLData/Localization/en-US/";
 let savelink = defaultlink;
-
-// i am well aware that i should put all of this in another file, but it has to be compilable using nexe
-
-let doneCount = 0;
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
