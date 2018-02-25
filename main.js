@@ -235,7 +235,7 @@ let abbreviations = {
 	"Psychic": "Psy",
 	"Spy": "N/A",
 	"Blackmailer": "BMer",
-	"Jailor": "Jailor",
+	"Jailor": "N/A",
 	"GuardianAngel": "GA",
 	"Sheriff": "N/A",
 	"Executioner": "Exe",
