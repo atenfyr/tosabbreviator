@@ -227,7 +227,7 @@ let abbreviations = {
 	"Janitor": "Jan",
 	"Retributionist": "Retri",
 	"Necromancer": "Necro",
-	"Trapper": "N/A",
+	"Trapper": "TP",
 	"Survivor": "Surv",
 	"VampireHunter": "VH",
 	"Amnesiac": "Amne",
