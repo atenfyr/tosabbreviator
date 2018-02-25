@@ -415,6 +415,9 @@ let guichanges = {
 	"JuggernautFeedback2": "You now have Basic defense.",
 	"JuggernautFeedback3": "You will now Rampage.",
     "JuggernautFeedback4": "You now have Unstoppable attack.",
+    "TrapperFeedback1": "A %role% triggered your trap.",
+    "PsychicFeedback1": "E: %name1%, %name2%, %name3%",
+    "PsychicFeedback2": "G: %name1%, %name2%",
     "PirateChooseAttackHeader": "Choose your attack:",
     "PirateChooseDefendHeader": "Choose your defense:",
     "PirateChooseAttackWinsAgainst": "Wins against:",
@@ -748,9 +751,9 @@ function lower(pp) {
 								let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAttribute", "").replace(/\d/g, '');
 								log.info('Overriding traits for %s role card', role);
 								if (role == "Executioner") {
-									result["Entries"]["Entry"][i]["Text"][0] = ("- Target: %name%\n- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniques[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!") + " (1 is highest possible)");
+									result["Entries"]["Entry"][i]["Text"][0] = ("- Target: %name%\n- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniques[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!"));
 								} else {
-									result["Entries"]["Entry"][i]["Text"][0] = ("- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniques[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!") + " (1 is highest possible)");
+									result["Entries"]["Entry"][i]["Text"][0] = ("- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniques[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!"));
 								}
 								if (!abbreviations[role]) {
 									log.warning('Could not find an abbreviation for role ' + role);
