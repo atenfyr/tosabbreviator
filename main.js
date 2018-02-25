@@ -220,7 +220,7 @@ let abbreviations = {
 	"Crusader": "N/A",
 	"Vigilante": "Vig",
 	"Veteran": "Vet",
-	"Mafioso": "N/A",
+	"Mafioso": "Maf/mafi (ambiguous)",
 	"Pirate": "N/A",
 	"Ambusher": "N/A",
 	"Medium": "Med",
