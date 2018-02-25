@@ -27,7 +27,7 @@ if (!fs.existsSync(homedir + 'main.config')) {
 
 let config = JSON.parse(fs.readFileSync(homedir + 'main.config'));
 
-let version = 'v3.1.2';
+let version = 'v3.2.0';
 let writtenFor = 8597;
 let waitingForKey, ynPrompt, disabled, pathError, hasCrashed, developmentKey = false;
 
@@ -116,7 +116,12 @@ let changes = { // Case sensitive
 	"Role block": "RB",
 	"BG/GF": "bg/gf",
 	"You are immune": "You were immune",
-	"you are immune": "you were immune",
+    "you are immune": "you were immune",
+    "Ye": "You",
+    "Yer": "Your",
+    "ye": "you",
+    "yer": "your",
+    "th'": "the",
 }
 let changes2 = { // Not case sensitive
 	"not suspicious":"ns/gf",
@@ -414,7 +419,30 @@ let guichanges = {
 	"JuggernautFeedback1": "You can now attack every night.",
 	"JuggernautFeedback2": "You now have Basic defense.",
 	"JuggernautFeedback3": "You can now Rampage.",
-	"JuggernautFeedback4": "You now have Unstoppable attack.",
+    "JuggernautFeedback4": "You now have Unstoppable attack.",
+    "PirateChooseAttackHeader": "Choose your attack:",
+    "PirateChooseDefendHeader": "Choose your defence:",
+    "PirateDefend1Notice": "You will try to sidestep.",
+    "PirateDefend2Notice": "You will try to backpetal.",
+    "PirateDefend3Notice": "You will try to use chainmail.",
+    "PirateDuelResultsA21": "You used the scimitar, and your target tried to sidestep. You won.",
+    "PirateDuelResultsA23": "You used the scimitar, and your target used chainmail. You lost.",
+    "PirateDuelResultsA22": "You used the scimitar, and your target backpedaled. You lost.",
+    "PirateDuelResultsA11": "You used the rapier, and your target sidestepped. You lost.",
+    "PirateDuelResultsA13": "You used the rapier, and your target used chainmail. You won.",
+    "PirateDuelResultsA12": "You used the rapier, and your target backpedaled. You lost.",
+    "PirateDuelResultsA31": "You used the pistol, and your target sidestepped. You lost.",
+    "PirateDuelResultsA33": "You used the pistol, and your target used chainmail. You lost.",
+    "PirateDuelResultsA32": "You used the pistol, and your target backpedaled. You won.",
+    "PirateDuelResultsD21": "You tried to sidestep, and the pirate used the scimitar. You lost.",
+    "PirateDuelResultsD23": "You used chainmail, and the pirate used the scimitar. You won.",
+    "PirateDuelResultsD22": "You backpedaled, and the pirate used the scimitar. You won.",
+    "PirateDuelResultsD11": "You sidestepped, and the pirate used the rapier. You won.",
+    "PirateDuelResultsD13": "You used chainmail, and the pirate used the rapier. You lost.",
+    "PirateDuelResultsD12": "You backpedaled, and the pirate used the rapier. You won.",
+    "PirateDuelResultsD31": "You sidestepped, and the pirate used the pistol. You won.",
+    "PirateDuelResultsD33": "You used chainmail, and the pirate used the pistol. You won.",
+    "PirateDuelResultsD32": "You backpedaled, and the pirate used the pistol. You lost.",
 }
 let forcechanges = {
 	"0": "Result: Mafia",
@@ -433,7 +461,8 @@ let forcechanges = {
 	"146": "Not enough people alive to have a vision tonight.",
 	"168": "Result: Coven",
 	"169": "You cannot resurrect this role.",
-	"170": "You cannot remember a unique role.", 
+    "170": "You cannot remember a unique role.",
+    "178": "You attacked the pirate who tried to rb you.",
 	"Coven31": "Results: Vig/Vet/Mafioso/Pirate/Ambusher",
 	"Coven32": "Results: Med/Janitor/Retri/Necro/Trapper",
 	"Coven33": "Results: Surv/VH/Medusa/Psy",
