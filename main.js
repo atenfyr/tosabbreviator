@@ -35,10 +35,12 @@ let savelink = defaultlink;
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
 function displayHeader() {
 	console.log('---tosabbreviator ' + version + '---');
 	console.log('----Written by Atenfyr----\n');
 }
+
 function waitForKey(terminating) {
 	waitingForKey = false;
 	if (terminating) {
@@ -105,6 +107,7 @@ function doConversion() {
 	lower(savelink + 'Gui.BACKUP');
 	lower(savelink + '../GameLanguage.BACKUP');
 }
+
 function doVersionCheck(cb) {
 	let latestN = 0;
 	fs.readFile(savelink + '\\PatchNotes\\PatchNotes.xml', function(err, data) {
@@ -138,6 +141,7 @@ function doVersionCheck(cb) {
 		}
 	});
 }
+
 function getPath(menu) {
 	if (menu) {
 		disabled = true;
