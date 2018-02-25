@@ -117,11 +117,6 @@ let changes = { // Case sensitive
 	"BG/GF": "bg/gf",
 	"You are immune": "You were immune",
     "you are immune": "you were immune",
-    "Ye": "You",
-    "Yer": "Your",
-    "ye": "you",
-    "yer": "your",
-    "th'": "the",
 }
 let changes2 = { // Not case sensitive
 	"not suspicious":"ns/gf",
