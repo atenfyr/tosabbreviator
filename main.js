@@ -418,7 +418,9 @@ if (!pathError) {
             } else {
                 if (response['body']['tag_name'] !== version) {
                     config['downloadlink'] = response['body']['assets'][0]['browser_download_url'].replace('https://github.com/atenfyr/tosabbreviator/releases/download/', '');
-                    console.log('\nNote: A new version of tosabbreviator is available. Press the "F" key to download it.');
+                    if (!justGotUpdate) {
+                        console.log('\nNote: A new version of tosabbreviator is available. Press the "F" key to download it.');
+                    }
                     justGotUpdate = true;
                 } else {
                     if (config['downloadlink']) {
@@ -433,6 +435,7 @@ if (!pathError) {
     }
     if (config['downloadlink'] && !justGotUpdate) {
         console.log('\nNote: A new version of tosabbreviator is available. Press the "F" key to download it.');
+        justGotUpdate = true;
     }
 }
 
