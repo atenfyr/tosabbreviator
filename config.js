@@ -393,7 +393,7 @@ const guiChanges = {
 	"JuggernautFeedback2": "You now have Basic defense.",
 	"JuggernautFeedback3": "You will now Rampage.",
     "JuggernautFeedback4": "You now have Unstoppable attack.",
-    "TrapperFeedback1": "A %role% triggered your trap.",
+    "TrapperFeedback1": "A(n) %role% triggered your trap.",
     "PsychicFeedback1": "Evil: %name1%, %name2%, or %name3%",
     "PsychicFeedback2": "Good: %name1%, %name2%",
     "YouWereDueled": "You have been rb'd by a Pirate.",
