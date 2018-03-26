@@ -308,7 +308,7 @@ function lower(pp) {
 							} else if ((result["Entries"]["Entry"][i]["id"][0].indexOf("RoleCardAttribute") != -1)) {
 								let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAttribute", "").replace(/\d/g, '');
 								log.info('Overriding traits for %s role card', role);
-								if (role == "Executioner") {
+								if (role == "Executioner" || role == "GuardianAngel") {
 									result["Entries"]["Entry"][i]["Text"][0] = ("- Target: %name%\n- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniqueRoles[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!"));
 								} else {
 									result["Entries"]["Entry"][i]["Text"][0] = ("- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniqueRoles[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!"));

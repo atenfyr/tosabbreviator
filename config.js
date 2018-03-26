@@ -359,7 +359,7 @@ const guiChanges = {
 	"JanitorKnowsRoleX": "Your target's role was %role%.",
 	"ExecutionerConvertedToJester": "Your target has died.",
 	"JanitorKnowsWill1": "Check the Graveyard to see your target's last will.",
-	"JanitorKnowsWill2": "",
+	"JanitorKnowsWill2": " ",
 	"JailorCantKillAgain": "You can no longer execute.",
 	"LobbyMediumDescription": "A secret psychic who talks with the dead.",
 	"RoleSelectedDesc_7": "You are a secret psychic who talks with the dead.",
@@ -478,7 +478,8 @@ const dangerWords = [
     "rb", 
     "roleblock", 
     "immune", 
-    "transport"
+    "transport",
+    "stone"
 ]
 
 global['version'] = version;
