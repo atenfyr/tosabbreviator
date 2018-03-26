@@ -13,7 +13,7 @@ compile({
 });
 compile({
     input: './main.js',
-    output: './tosabbreviator_XYZ',
+    output: './tosabbreviator_XYZ_mac',
     fakeArgv: 'production',
     loglevel: 'silent',
     target: 'mac-x64',
