@@ -283,7 +283,7 @@ function lower(pp) {
 									result["Entries"]["Entry"][i]["Color"] = "0x808080";
 								}
 							}
-							if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("healed") != -1) && result["Entries"]["Entry"][i]["Color"][0] != "0x549BF2") {
+							if (((result["Entries"]["Entry"][i]["Text"][0].indexOf("healed") != -1) || (result["Entries"]["Entry"][i]["id"][0] == 147)) && result["Entries"]["Entry"][i]["Color"][0] != "0x549BF2") {
 								log.info('Flagging message %s as healing in Game.xml', result["Entries"]["Entry"][i]['Text'][0]);
 								result["Entries"]["Entry"][i]["Color"] = "0x00FF00";
 							}
