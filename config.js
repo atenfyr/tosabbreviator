@@ -3,7 +3,7 @@
 	Written by Atenfyr
 */
 
-const version = 'v3.2.0';
+const version = 'v3.2.1';
 const writtenFor = 8598;
 
 const investResults = {
