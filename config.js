@@ -4,7 +4,7 @@
 */
 
 const version = 'v3.2.0';
-const writtenFor = 8597;
+const writtenFor = 8598;
 
 const investResults = {
 	"Escort": "Escort/Trans/Consort (Hypno)",
@@ -424,6 +424,7 @@ const guiChanges = {
     "PirateDuelResultsD31": "You sidestepped, and the pirate used the pistol. You won.",
     "PirateDuelResultsD33": "You used chainmail, and the pirate used the pistol. You won.",
     "PirateDuelResultsD32": "You backpedaled, and the pirate used the pistol. You lost.",
+    "YouWereDueled": "You were pirated."
 }
 
 const forceChanges = {
