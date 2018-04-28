@@ -4,7 +4,7 @@
 */
 
 const version = 'v3.2.1';
-const writtenFor = 8598;
+const writtenFor = 9069;
 
 const investResults = {
 	"Escort": "Escort/Trans/Consort (Hypno)",
