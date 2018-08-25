@@ -18,8 +18,8 @@ switch(Number(chosenTarget)) {
 }
 
 if (chosenTarget == 'help') {
-    console.log('Syntax: node build <os number>\nList of valid numbers:')
-    console.log('0:     windows x64\n1:     mac x64\n2:     linux x64')
+    console.log('Syntax: node build <os number>\nList of valid numbers:');
+    console.log('0:     windows x64\n1:     mac x64\n2:     linux x64');
     process.exit(0);
 }
 

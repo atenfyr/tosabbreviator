@@ -14,11 +14,11 @@ const request = require('request');
 const openurl = require('openurl');
 const db = JSON.parse(fs.readFileSync('./database.json'));
 
-let homedir = require('os').homedir();
-if (!fs.existsSync(homedir + '/tosabbreviator')) {
-    fs.mkdirSync(homedir + '/tosabbreviator');
+let homedir = process.env.APPDATA || process.env.HOME;
+if (!fs.existsSync(homedir + '/.tosabbreviator')) {
+    fs.mkdirSync(homedir + '/.tosabbreviator');
 }
-homedir = homedir + '/tosabbreviator/';
+homedir = homedir + '/.tosabbreviator/';
 
 if (!fs.existsSync(homedir + 'main.config')) {
 	fs.writeFileSync(homedir + 'main.config', '{}');
@@ -111,16 +111,16 @@ function doVersionCheck(cb) {
         headers: {'User-Agent': 'tosabbreviator ' + db.version},
         json: true
     }, function(error, response) {
-        if (error || !response || !response['writtenFor']) {
+        if (error || !response || !response['body'] || !response['body']['writtenFor']) {
             if (cb) return cb(config['latest'], db.version);
         } else {
             fs.readFile(savelink + '\\PatchNotes\\PatchNotes.xml', function(err, data) {
                 let dsplit = data.toString().split("\n");
                 for (var i in dsplit) {
-                    if (dsplit[i].indexOf("<Version>") != -1) {
+                    if (dsplit[i].indexOf("<Version>") !== -1) {
                         latestN = Number(dsplit[i].replace(/[\D]/g, ""));
-                        latestN2 = response['writtenFor'][db.version] || 0;
-                        let writtenFor = db['writtenFor'][db.version] || 0;
+                        latestN2 = response['body']['version'] || 0;
+                        let writtenFor = response['body']['writtenFor'][db.version] || 0;
                         jf.writeFileSync(homedir + 'main.config', config);
                         if (cb) return cb(latestN, latestN2);
 
@@ -211,13 +211,13 @@ function lower(pp) {
 				if (fn == "Game.BACKUP") {
 					for (var i in result["Entries"]["Entry"]) {
 						if (db.forceChanges[result["Entries"]["Entry"][i]["id"][0]]) {
-							log.info('Overriding data for entry %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
+							log.debug('Overriding data for entry %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
 							result["Entries"]["Entry"][i]["Text"][0] = db.forceChanges[result["Entries"]["Entry"][i]["id"][0]];
 							if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Result: ") != -1) || (result["Entries"]["Entry"][i]["Text"][0].indexOf("Results: ") != -1)) {
 								result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
 							}
 						} else if (result["Entries"]["Entry"][i]["id"][0].substring(0,10) == "SpyResult_") {
-							log.info('Writing spy result for entry %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
+							log.debug('Writing spy result for entry %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
 							var id = result["Entries"]["Entry"][i]["id"][0].substring(10);
 							for (var j in result["Entries"]["Entry"]) {
 								if (result["Entries"]["Entry"][j]["id"][0] == id) {
@@ -249,13 +249,13 @@ function lower(pp) {
 								}
 
 								nonAbbreviatedRole = nonAbbreviatedRole.replace(/\s/g, '');
-								log.info('Adding fake invest results for consig/witch results on %s', nonAbbreviatedRole);
+								log.debug('Adding fake invest results for consig/witch results on %s', nonAbbreviatedRole);
 								if (!db.investResults[nonAbbreviatedRole]) {
 									log.warning('Could not find invest results for role ' + nonAbbreviatedRole);
 								}
 								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0] + ' (' + (db.investResults[nonAbbreviatedRole] || "Error!").replace(/\(/g, '[').replace(/\)/g, ']') + ')';
 							} else if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Your target could be a") != -1)) {
-								log.info('Abbreviating invest results for ID %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
+								log.debug('Abbreviating invest results for ID %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
 								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace("Your target could be a ", "Results: ").replace("Your target could be an ", "Results: ").replace(/\, /g, "/").replace(/or /g, "");
 								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].slice(0, -1);
 								result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
@@ -281,15 +281,15 @@ function lower(pp) {
 								}
 								
 								if (db.forceDangerous.includes(Number(result["Entries"]["Entry"][i]["id"][0]))) {
-									log.info('Flagging message %s as dangerous in Game.xml', result["Entries"]["Entry"][i]['Text'][0]);
+									log.debug('Flagging message %s as dangerous in Game.xml', result["Entries"]["Entry"][i]['Text'][0]);
 									result["Entries"]["Entry"][i]["Color"] = "0xFF0000";
 								} else if (!danger) {
-									log.info('Flagging message %s as mundane in Game.xml', result["Entries"]["Entry"][i]['Text'][0]);
+									log.debug('Flagging message %s as mundane in Game.xml', result["Entries"]["Entry"][i]['Text'][0]);
 									result["Entries"]["Entry"][i]["Color"] = "0x808080";
 								}
 							}
 							if (((result["Entries"]["Entry"][i]["Text"][0].indexOf("healed") != -1) || (result["Entries"]["Entry"][i]["id"][0] == 147)) && result["Entries"]["Entry"][i]["Color"][0] != "0x549BF2") {
-								log.info('Flagging message %s as healing in Game.xml', result["Entries"]["Entry"][i]['Text'][0]);
+								log.debug('Flagging message %s as healing in Game.xml', result["Entries"]["Entry"][i]['Text'][0]);
 								result["Entries"]["Entry"][i]["Color"] = "0x00FF00";
 							}
 						}
@@ -298,21 +298,21 @@ function lower(pp) {
 					for (var i in result["Entries"]["Entry"]) {
 						if (result["Entries"]["Entry"][i]["Text"] && result["Entries"]["Entry"][i]["id"]) {
 							if (db.guiChanges[result["Entries"]["Entry"][i]["id"]]) {
-								log.info('Overriding data for entry %s in Gui.xml', result["Entries"]["Entry"][i]['id']);
+								log.debug('Overriding data for entry %s in Gui.xml', result["Entries"]["Entry"][i]['id']);
 								result["Entries"]["Entry"][i]["Text"][0] = db.guiChanges[result["Entries"]["Entry"][i]["id"]];
 							} else if (result["Entries"]["Entry"][i]["id"][0].substring(0,3) == "Tip") {
-								log.info('Erasing data for tip %s', result["Entries"]["Entry"][i]["id"]);
+								log.debug('Erasing data for tip %s', result["Entries"]["Entry"][i]["id"]);
 								result["Entries"]["Entry"][i]["Text"][0] = " ";
 							} else if ((result["Entries"]["Entry"][i]["id"][0].indexOf("RoleCardAbility") != -1)) {
 								let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAbility", "").replace(/\d/g, '');
-								log.info('Overriding investigator results for %s role card', role);
+								log.debug('Overriding investigator results for %s role card', role);
 								if (!db.investResults[role]) {
 									log.warning('Could not find invest results for role ' + role);
 								}
 								result["Entries"]["Entry"][i]["Text"][0] = db.investResults[role] || "Error!";
 							} else if ((result["Entries"]["Entry"][i]["id"][0].indexOf("RoleCardAttribute") != -1)) {
 								let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAttribute", "").replace(/\d/g, '');
-								log.info('Overriding traits for %s role card', role);
+								log.debug('Overriding traits for %s role card', role);
 								if (role == "Executioner" || role == "GuardianAngel") {
 									result["Entries"]["Entry"][i]["Text"][0] = ("- Target: %name%\n- Abbr: " + (db.abbreviations[role] || "Error!") + "\n- " + ((db.uniqueRoles[role])?"Unique":"Not unique") + "\n- Priority: " + (db.priority[role] || "Error!"));
 								} else {
@@ -341,7 +341,7 @@ function lower(pp) {
 					result["Entries"]["Entry"][1]["Text"][0] = "English (Abbr.)";
 					result["Entries"]["Entry"][1]["Description"][0] = "English (Abbr.)";
 					fn = "../" + fn;
-					log.info('Overriding language name in GameLanguage.xml');
+					log.debug('Overriding language name in GameLanguage.xml');
 				}
 				var builder = new xml2js.Builder({"headless": true});
 				var xml = builder.buildObject(result);
@@ -350,7 +350,8 @@ function lower(pp) {
 					if (!hasCrashed) {
 						console.log(doneCount + ' out of 3 files completed.');
 					}
-					if (doneCount == 3) {
+					if (doneCount === 3) {
+                        log.info('Finished conversion.');
 						console.log('Finished conversion.');
 						disabled = false;
 						waitForKey();

@@ -11,13 +11,3 @@ compile({
 }).then(() => {
     console.log('Finished windows-x64');
 });
-compile({
-    input: './main.js',
-    output: './tosabbreviator_XYZ_mac',
-    fakeArgv: 'production',
-    loglevel: 'silent',
-    target: 'mac-x64',
-    resources: './config.js'
-}).then(() => {
-    console.log('Finished mac-x64');
-});
