@@ -95,7 +95,7 @@ function doConversion() {
         waitForKey();
         return;
     }
-    
+
     disabled = true;
 	if (!fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
 		console.log("Backing up files..");
@@ -407,7 +407,7 @@ if (config['steampath']) {
 if (!pathError) {
 	console.clear();
     displayHeader();
-    console.log("Keybinds:\n  c		convert files and exit this tool\n  v		compare version numbers\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  h             open latest release in browser\n  e		exit this tool");
+    console.log("Keybinds:\n  c		convert files\n  r             revert any conversions done\n  v             compare version numbers\n  p		repair a broken installation\n  a		switch path\n  h             open latest release in browser\n  e		exit this tool");
 
 	doVersionCheck(function(v) {
 		if (config["latest"]) {
@@ -439,9 +439,7 @@ if (!pathError) {
                     }
                     justGotUpdate = true;
                 } else {
-                    if (config['downloadlink']) {
-                        delete config['downloadlink'];
-                    }
+                    if (config['downloadlink']) delete config['downloadlink'];
                 }
                 config['lastcheck'] = Date.now();
                 jf.writeFileSync(homedir + 'main.config', config);
