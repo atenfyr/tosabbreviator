@@ -1,6 +1,6 @@
 /*
 	tosabbreviator
-	Written by Atenfyr
+    Written by Atenfyr
 */
 
 const fs = require('fs-extra');
@@ -12,8 +12,7 @@ const jf = require('jsonfile');
 const Log = require('log');
 const request = require('request');
 const openurl = require('openurl');
-
-require('./config.js');
+const db = JSON.parse(fs.readFileSync('./database.json'));
 
 let homedir = require('os').homedir();
 if (!fs.existsSync(homedir + '/tosabbreviator')) {
@@ -32,12 +31,8 @@ let waitingForKey, ynPrompt, disabled, pathError, hasCrashed, developmentKey, ju
 let defaultlink = "C:/Program Files (x86)/Steam/steamapps/common/Town of Salem/XMLData/Localization/en-US/";
 let savelink = defaultlink;
 
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 function displayHeader() {
-	console.log('---tosabbreviator ' + version + '---');
+	console.log('---tosabbreviator ' + db.version + '---');
 	console.log('----Written by Atenfyr----\n');
 }
 
@@ -86,6 +81,7 @@ function revertConv() {
 		disabled = false;
 	}
 }
+
 function doConversion() {
 	disabled = true;
 	if (!fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
@@ -109,37 +105,46 @@ function doConversion() {
 }
 
 function doVersionCheck(cb) {
-	let latestN = 0;
-	fs.readFile(savelink + '\\PatchNotes\\PatchNotes.xml', function(err, data) {
-		let dsplit = data.toString().split("\n");
-		for (var i in dsplit) {
-			if (dsplit[i].indexOf("<Version>") != -1) {
-                latestN = Number(dsplit[i].replace(/[\D]/g, ""));
-                latestN2 = config['latestversion'] || version;
-                jf.writeFileSync(homedir + 'main.config', config);
-				if (cb) {
-					return cb(latestN, latestN2);
-				} else {
-                    console.log('Latest tosabbreviator version: ' + latestN2);
-                    console.log('Installed tosabbreviator version: ' + version);
-					console.log('\nInstalled Town of Salem version: ' + latestN);
-					console.log('Supported Town of Salem version: ' + writtenFor + '\n');
-					if (latestN2 == version && latestN > writtenFor) {
-                        console.log('You have the latest version of tosabbreviator, but tosabbreviator has not been updated yet. If you have reviewed the patch notes and have not noticed any major change that would disrupt gameplay, you may continue using this version.');
-                    } else if (latestN2 != version && writtenFor > latestN) {
-                        console.log('Both your version of tosabbreviator and your version of Town of Salem are outdated. Press the "F" key on the homepage to update tosabbreviator.');
-                    } else if (latestN2 != version) {
-                        console.log('Your version of tosabbreviator is outdated. Press the "F" key on the homepage to update tosabbreviator.');
-                    } else if (writtenFor > latestN) {
-                        console.log('Your version of Town of Salem is outdated.');
-                    } else {
-                        console.log('You\'re good to go!');
+    let latestN = 0;
+    request.get({
+        url: 'https://raw.githubusercontent.com/atenfyr/tosabbreviator/master/database.json',
+        headers: {'User-Agent': 'tosabbreviator ' + db.version},
+        json: true
+    }, function(error, response) {
+        if (error || !response || !response['writtenFor']) {
+            if (cb) return cb(config['latest'], db.version);
+        } else {
+            fs.readFile(savelink + '\\PatchNotes\\PatchNotes.xml', function(err, data) {
+                let dsplit = data.toString().split("\n");
+                for (var i in dsplit) {
+                    if (dsplit[i].indexOf("<Version>") != -1) {
+                        latestN = Number(dsplit[i].replace(/[\D]/g, ""));
+                        latestN2 = response['writtenFor'][db.version] || 0;
+                        let writtenFor = db['writtenFor'][db.version] || 0;
+                        jf.writeFileSync(homedir + 'main.config', config);
+                        if (cb) return cb(latestN, latestN2);
+
+                        console.log('Latest tosabbreviator version: ' + latestN2);
+                        console.log('Installed tosabbreviator version: ' + db.version);
+                        console.log('\nInstalled Town of Salem version: ' + latestN);
+                        console.log('Supported Town of Salem version: ' + writtenFor + '\n');
+                        if (latestN2 === db.version && latestN > writtenFor) {
+                            console.log('You have the latest version of tosabbreviator, but tosabbreviator has not been updated yet. If you have reviewed the patch notes and have not noticed any major change that would disrupt gameplay, you may continue using this version.');
+                        } else if (latestN2 !== db.version && writtenFor > latestN) {
+                            console.log('Both your version of tosabbreviator and your version of Town of Salem are outdated. Press the "F" key on the homepage to update tosabbreviator.');
+                        } else if (latestN2 !== db.version) {
+                            console.log('Your version of tosabbreviator is outdated. Press the "F" key on the homepage to update tosabbreviator.');
+                        } else if (writtenFor > latestN) {
+                            console.log('Your version of Town of Salem is outdated.');
+                        } else {
+                            console.log('You\'re good to go!');
+                        }
+                        waitForKey();
                     }
-					waitForKey();
-				}
-			}
-		}
-	});
+                }
+            });
+        }
+    });
 }
 
 function getPath(menu) {
@@ -205,9 +210,9 @@ function lower(pp) {
 			parser.parseString(data, function (err, result) {
 				if (fn == "Game.BACKUP") {
 					for (var i in result["Entries"]["Entry"]) {
-						if (forceChanges[result["Entries"]["Entry"][i]["id"][0]]) {
+						if (db.forceChanges[result["Entries"]["Entry"][i]["id"][0]]) {
 							log.info('Overriding data for entry %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
-							result["Entries"]["Entry"][i]["Text"][0] = forceChanges[result["Entries"]["Entry"][i]["id"][0]];
+							result["Entries"]["Entry"][i]["Text"][0] = db.forceChanges[result["Entries"]["Entry"][i]["id"][0]];
 							if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Result: ") != -1) || (result["Entries"]["Entry"][i]["Text"][0].indexOf("Results: ") != -1)) {
 								result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
 							}
@@ -223,11 +228,11 @@ function lower(pp) {
 							result["Entries"]["Entry"][i]["Text"][0] = "On target: " + result["Entries"]["Entry"][id]["Text"][0].replace(/On target\: /g, "");
 							result["Entries"]["Entry"][i]["Color"][0] = "0x549BF2";
 						} else if (result["Entries"]["Entry"][i]["Text"]) {
-							for (var j in caseSensitive) {
-								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "g"), caseSensitive[j]);
+							for (var j in db.caseSensitive) {
+								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "g"), db.caseSensitive[j]);
 							}
-							for (var j in nonCaseSensitive) {
-								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "gi"), nonCaseSensitive[j]);
+							for (var j in db.nonCaseSensitive) {
+								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "gi"), db.nonCaseSensitive[j]);
 							}
 							if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Your target") !== -1) && (result["Entries"]["Entry"][i]["Text"][0].indexOf("They must be") !== -1)) {
 								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(/.+(\They must be a )/g, "Result: ").replace(/.+(\They must be an )/g, "Result: ").replace(/.+(\They must be the )/g, "Result: ").replace(/.+(\They must be )/g, "Result: ");
@@ -236,8 +241,8 @@ function lower(pp) {
 
 								let abbreviatedRole = result["Entries"]["Entry"][i]["Text"][0].replace("Result: ", "").trim();
 								let nonAbbreviatedRole = abbreviatedRole;
-								for (var j in abbreviations) {
-									if (abbreviations[j].toLowerCase() == abbreviatedRole.toLowerCase()) {
+								for (var j in db.abbreviations) {
+									if (db.abbreviations[j].toLowerCase() == abbreviatedRole.toLowerCase()) {
 										nonAbbreviatedRole = j;
 										break;
 									}
@@ -245,10 +250,10 @@ function lower(pp) {
 
 								nonAbbreviatedRole = nonAbbreviatedRole.replace(/\s/g, '');
 								log.info('Adding fake invest results for consig/witch results on %s', nonAbbreviatedRole);
-								if (!investResults[nonAbbreviatedRole]) {
+								if (!db.investResults[nonAbbreviatedRole]) {
 									log.warning('Could not find invest results for role ' + nonAbbreviatedRole);
 								}
-								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0] + ' (' + (investResults[nonAbbreviatedRole] || "Error!").replace(/\(/g, '[').replace(/\)/g, ']') + ')';
+								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0] + ' (' + (db.investResults[nonAbbreviatedRole] || "Error!").replace(/\(/g, '[').replace(/\)/g, ']') + ')';
 							} else if ((result["Entries"]["Entry"][i]["Text"][0].indexOf("Your target could be a") != -1)) {
 								log.info('Abbreviating invest results for ID %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
 								result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace("Your target could be a ", "Results: ").replace("Your target could be an ", "Results: ").replace(/\, /g, "/").replace(/or /g, "");
@@ -267,15 +272,15 @@ function lower(pp) {
 							if ((result["Entries"]["Entry"][i]["Color"][0] != "0x549BF2") && (result["Entries"]["Entry"][i]["Color"][0] != "0x00FF00")) {
 								var text = result["Entries"]["Entry"][i]["Text"][0];
 								var danger = false;
-								for (var j in dangerWords) {
-									if (text.toLowerCase().indexOf(dangerWords[j].toLowerCase()) !== -1) {
+								for (var j in db.dangerWords) {
+									if (text.toLowerCase().indexOf(db.dangerWords[j].toLowerCase()) !== -1) {
 										result["Entries"]["Entry"][i]["Color"] = "0xFF0000";
 										danger = true;
 										break;
 									}
 								}
 								
-								if (forceDangerous.includes(Number(result["Entries"]["Entry"][i]["id"][0]))) {
+								if (db.forceDangerous.includes(Number(result["Entries"]["Entry"][i]["id"][0]))) {
 									log.info('Flagging message %s as dangerous in Game.xml', result["Entries"]["Entry"][i]['Text'][0]);
 									result["Entries"]["Entry"][i]["Color"] = "0xFF0000";
 								} else if (!danger) {
@@ -292,42 +297,42 @@ function lower(pp) {
 				} else if (fn == "Gui.BACKUP") {
 					for (var i in result["Entries"]["Entry"]) {
 						if (result["Entries"]["Entry"][i]["Text"] && result["Entries"]["Entry"][i]["id"]) {
-							if (guiChanges[result["Entries"]["Entry"][i]["id"]]) {
+							if (db.guiChanges[result["Entries"]["Entry"][i]["id"]]) {
 								log.info('Overriding data for entry %s in Gui.xml', result["Entries"]["Entry"][i]['id']);
-								result["Entries"]["Entry"][i]["Text"][0] = guiChanges[result["Entries"]["Entry"][i]["id"]];
+								result["Entries"]["Entry"][i]["Text"][0] = db.guiChanges[result["Entries"]["Entry"][i]["id"]];
 							} else if (result["Entries"]["Entry"][i]["id"][0].substring(0,3) == "Tip") {
 								log.info('Erasing data for tip %s', result["Entries"]["Entry"][i]["id"]);
 								result["Entries"]["Entry"][i]["Text"][0] = " ";
 							} else if ((result["Entries"]["Entry"][i]["id"][0].indexOf("RoleCardAbility") != -1)) {
 								let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAbility", "").replace(/\d/g, '');
 								log.info('Overriding investigator results for %s role card', role);
-								if (!investResults[role]) {
+								if (!db.investResults[role]) {
 									log.warning('Could not find invest results for role ' + role);
 								}
-								result["Entries"]["Entry"][i]["Text"][0] = investResults[role] || "Error!";
+								result["Entries"]["Entry"][i]["Text"][0] = db.investResults[role] || "Error!";
 							} else if ((result["Entries"]["Entry"][i]["id"][0].indexOf("RoleCardAttribute") != -1)) {
 								let role = result["Entries"]["Entry"][i]["id"][0].replace("RoleCardAttribute", "").replace(/\d/g, '');
 								log.info('Overriding traits for %s role card', role);
 								if (role == "Executioner" || role == "GuardianAngel") {
-									result["Entries"]["Entry"][i]["Text"][0] = ("- Target: %name%\n- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniqueRoles[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!"));
+									result["Entries"]["Entry"][i]["Text"][0] = ("- Target: %name%\n- Abbr: " + (db.abbreviations[role] || "Error!") + "\n- " + ((db.uniqueRoles[role])?"Unique":"Not unique") + "\n- Priority: " + (db.priority[role] || "Error!"));
 								} else {
-									result["Entries"]["Entry"][i]["Text"][0] = ("- Abbr: " + (abbreviations[role] || "Error!") + "\n- " + ((uniqueRoles[role])?"Unique":"Not unique") + "\n- Priority: " + (priority[role] || "Error!"));
+									result["Entries"]["Entry"][i]["Text"][0] = ("- Abbr: " + (db.abbreviations[role] || "Error!") + "\n- " + ((db.uniqueRoles[role])?"Unique":"Not unique") + "\n- Priority: " + (db.priority[role] || "Error!"));
 								}
-								if (!abbreviations[role]) {
+								if (!db.abbreviations[role]) {
 									log.warning('Could not find an abbreviation for role ' + role);
 								}
-								if (!priority[role]) {
+								if (!db.priority[role]) {
 									log.warning('Could not find a priority for role ' + role);
 								}
-								for (var j in traits[role]) {
-									result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0] + "\n- " + traits[role][j];
+								for (var j in db.traits[role]) {
+									result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0] + "\n- " + db.traits[role][j];
 								}
 							} else {
-								for (var j in caseSensitive) {
-									result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "g"), caseSensitive[j]);
+								for (var j in db.caseSensitive) {
+									result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "g"), db.caseSensitive[j]);
 								}
-								for (var j in nonCaseSensitive) {
-									result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "gi"), nonCaseSensitive[j]);
+								for (var j in db.nonCaseSensitive) {
+									result["Entries"]["Entry"][i]["Text"][0] = result["Entries"]["Entry"][i]["Text"][0].replace(new RegExp(j, "gi"), db.nonCaseSensitive[j]);
 								}
 							}
 						}
@@ -337,11 +342,10 @@ function lower(pp) {
 					result["Entries"]["Entry"][1]["Description"][0] = "English (Abbr.)";
 					fn = "../" + fn;
 					log.info('Overriding language name in GameLanguage.xml');
-					//forceCrash();
 				}
 				var builder = new xml2js.Builder({"headless": true});
 				var xml = builder.buildObject(result);
-				fs.writeFile(savelink + (fn.replace('BACKUP', 'xml')), '<?xml version="1.0" encoding="utf-8"?>\n<!-- Parsed by tosabbreviator ' + version + ' -->\n' + xml, function() {
+				fs.writeFile(savelink + (fn.replace('BACKUP', 'xml')), '<?xml version="1.0" encoding="utf-8"?>\n<!-- Parsed by tosabbreviator ' + db.version + ' -->\n' + xml, function() {
 					doneCount++;
 					if (!hasCrashed) {
 						console.log(doneCount + ' out of 3 files completed.');
@@ -410,13 +414,13 @@ if (!pathError) {
     if ((Date.now()-config['lastcheck']) >= 1200000) {
         request.get({
             url: 'https://api.github.com/repos/atenfyr/tosabbreviator/releases/latest' + (developmentKey?("?access_token=" + developmentKey):""),
-            headers: {'User-Agent': 'tosabbreviator ' + version},
+            headers: {'User-Agent': 'tosabbreviator ' + db.version},
             json: true
-        }, function(error, response, body) {
+        }, function(error, response) {
             if (error || response['body']['message']) {
                 console.log('\nNote: Failed to check latest tosabbreviator version.');
             } else {
-                if (response['body']['tag_name'] !== version) {
+                if (response['body']['tag_name'] !== db.version) {
                     config['downloadlink'] = response['body']['assets'][0]['browser_download_url'].replace('https://github.com/atenfyr/tosabbreviator/releases/download/', '');
                     if (!justGotUpdate) {
                         console.log('\nNote: A new version of tosabbreviator is available. Press the "F" key to download it.');
@@ -427,7 +431,6 @@ if (!pathError) {
                         delete config['downloadlink'];
                     }
                 }
-                config['latestversion'] = response['body']['tag_name'];
                 config['lastcheck'] = Date.now();
                 jf.writeFileSync(homedir + 'main.config', config);
             }
