@@ -219,7 +219,7 @@
         "GuardianAngel": [],
         "Sheriff": [],
         "Executioner": ["Detection Immunity"],
-        "Werewolf": ["Kills RBer when RB'd", "Detection Immunity on non-Full Moon nights"],
+        "Werewolf": ["Kills RBer when RB'd", "Detection Immunity (no Full Moon)"],
         "Poisoner": [],
         "Framer": [],
         "Vampire": ["Detection Immunity"],

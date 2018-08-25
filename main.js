@@ -1,6 +1,8 @@
 /*
 	tosabbreviator
     Written by Atenfyr
+
+    this code is horrific and I don't understand it, but it works somehow
 */
 
 const fs = require('fs-extra');
@@ -51,6 +53,11 @@ function waitForKey(terminating) {
 	}
 }
 
+function validateFiles() {
+    if (!fs.existsSync(savelink + 'Gui.xml') || !fs.existsSync(savelink + 'Game.xml') || !fs.existsSync(savelink + '../GameLanguage.xml')) return false;
+    return true;
+}
+
 function revertConv() {
 	if (!fs.existsSync(savelink + 'Game.BACKUP') && !fs.existsSync(savelink + 'Gui.BACKUP') && !fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
 		console.log('Backup files are not present. You can do this in Steam; right-click Town of Salem\nin your games menu, click "Properties," click on the tab "Local Files," and click "Verify Integrity of Game Files."');
@@ -83,7 +90,13 @@ function revertConv() {
 }
 
 function doConversion() {
-	disabled = true;
+    if (!validateFiles()) {
+        console.log('Failed to validate existence of language files. Please repair the installation by pressing "P" at the main screen and try again.');
+        waitForKey();
+        return;
+    }
+    
+    disabled = true;
 	if (!fs.existsSync(savelink + '../GameLanguage.BACKUP')) {
 		console.log("Backing up files..");
 		fs.copySync(path.resolve(__dirname, (savelink + 'Game.xml')), savelink + 'Game.BACKUP');
@@ -94,8 +107,7 @@ function doConversion() {
 		console.log("3 out of 3 files completed.");
 		console.log("Finished backing up files.\n");
 	}
-	newLogDir = new Date().toISOString().replace(/\./g, '-').replace(/\:/g, '-') + '.log';
-	log = new Log('info', fs.createWriteStream(homedir + newLogDir, 'utf8'));
+	log = new Log('info', fs.createWriteStream(homedir + new Date().toISOString().replace(/[^a-zA-Z0-9]/g, '-') + '.log', 'utf8'));
 	log.info('Beginning conversion of game files.');
 
 	console.log("Beginning conversion.");
@@ -161,7 +173,7 @@ function getPath(menu) {
 			pathprefix = pathprefix.substring(0,pathprefix.length-1);
 		}
 		savelink = pathprefix + '/steamapps/common/Town of Salem/XMLData/Localization/en-US/';
-		if (!(fs.existsSync(savelink))) {
+		if (!fs.existsSync(savelink)) {
 			console.clear();
 			displayHeader();
 
@@ -173,10 +185,9 @@ function getPath(menu) {
 			}
 		} else {
 			config['steampath'] = pathprefix;
-			process.stdout.write('\nSuccessfully changed Steam path.');
 		}
 	} else {
-		if (!(fs.existsSync(defaultlink))) {
+		if (!fs.existsSync(defaultlink)) {
 			console.clear();
 			displayHeader();
 
@@ -190,14 +201,14 @@ function getPath(menu) {
 			}
 		} else {
 			config['steampath'] = 'default';
-			process.stdout.write('\nSuccessfully changed Steam path.');
 		}
 	}
 	jf.writeFileSync(homedir + 'main.config', config);
 
 	if (menu) {
-		disabled = false;
-		waitForKey(false);
+        disabled = false;
+		waitingForKey = true;
+        refresh(1);
 	}
 }
 
@@ -206,9 +217,9 @@ function lower(pp) {
 	var fn = path.parse(pp)["base"];
 	fs.readFile(pp, function(err, data) {
 		try {
-			if (hasCrashed) { return; }
+			if (hasCrashed) return;
 			parser.parseString(data, function (err, result) {
-				if (fn == "Game.BACKUP") {
+				if (fn === "Game.BACKUP") {
 					for (var i in result["Entries"]["Entry"]) {
 						if (db.forceChanges[result["Entries"]["Entry"][i]["id"][0]]) {
 							log.debug('Overriding data for entry %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
@@ -294,7 +305,7 @@ function lower(pp) {
 							}
 						}
 					}
-				} else if (fn == "Gui.BACKUP") {
+				} else if (fn === "Gui.BACKUP") {
 					for (var i in result["Entries"]["Entry"]) {
 						if (result["Entries"]["Entry"][i]["Text"] && result["Entries"]["Entry"][i]["id"]) {
 							if (db.guiChanges[result["Entries"]["Entry"][i]["id"]]) {
@@ -337,7 +348,7 @@ function lower(pp) {
 							}
 						}
 					}
-				} else if (fn == "GameLanguage.BACKUP") {
+				} else if (fn === "GameLanguage.BACKUP") {
 					result["Entries"]["Entry"][1]["Text"][0] = "English (Abbr.)";
 					result["Entries"]["Entry"][1]["Description"][0] = "English (Abbr.)";
 					fn = "../" + fn;
@@ -386,7 +397,7 @@ console.clear();
 displayHeader();
 
 if (config['steampath']) {
-	if (config['steampath'] != 'default') {
+	if (config['steampath'] !== 'default') {
 		savelink = config['steampath'] + '/steamapps/common/Town of Salem/XMLData/Localization/en-US/';
 	}
 } else {
@@ -443,7 +454,7 @@ if (!pathError) {
     }
 }
 
-process.stdin.on('data', function(d) {
+function refresh(d) {
 	if (hasCrashed) {
 		process.exit(0);
 	} else if (d && !disabled) {
@@ -491,7 +502,8 @@ process.stdin.on('data', function(d) {
 					console.clear();
 					displayHeader();
 					ynPrompt = false;
-					waitForKey();
+                    waitingForKey = true;
+                    refresh(1);
 					break;
 			}
 		} else {
@@ -552,6 +564,8 @@ process.stdin.on('data', function(d) {
 			}
 		}
 	}
-});
+}
+
+process.stdin.on('data', refresh);
 process.stdin.setRawMode(true);
 process.stdin.resume();
