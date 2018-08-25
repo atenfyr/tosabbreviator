@@ -439,7 +439,9 @@ if (!pathError) {
                     }
                     justGotUpdate = true;
                 } else {
-                    if (config['downloadlink']) delete config['downloadlink'];
+                    if (config['downloadlink']) {
+                        delete config['downloadlink'];
+                    }
                 }
                 config['lastcheck'] = Date.now();
                 jf.writeFileSync(homedir + 'main.config', config);
