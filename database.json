@@ -1,7 +1,7 @@
 {
     "version": "v3.2.2",
     "writtenFor": {
-        "v3.2.2": 9706
+        "v3.2.2": 10404
     },
     "investResults": {
         "Escort": "Escort/Trans/Consort (Hypno)",
@@ -69,14 +69,14 @@
         "Mayor": "N/A",
         "Tracker": "N/A",
         "Plaguebearer": "PB",
-        "Pestilence": "Pest",
+        "Pestilence": "Pest(i)",
         "Bodyguard": "BG",
         "Godfather": "GF",
         "Arsonist": "Arso",
         "Crusader": "N/A",
         "Vigilante": "Vig",
         "Veteran": "Vet",
-        "Mafioso": "Maf(i) (ambiguous)",
+        "Mafioso": "N/A",
         "Pirate": "N/A",
         "Ambusher": "N/A",
         "Medium": "Med",
@@ -219,7 +219,7 @@
         "GuardianAngel": [],
         "Sheriff": [],
         "Executioner": ["Detection Immunity"],
-        "Werewolf": ["Kills RBer when RB'd", "Detection Immunity (no Full Moon)"],
+        "Werewolf": ["Kills RBer when RB'd"],
         "Poisoner": [],
         "Framer": [],
         "Vampire": ["Detection Immunity"],
@@ -404,7 +404,7 @@
         "PirateDuelResultsA31": "You used the pistol, and your target sidestepped. You lost.",
         "PirateDuelResultsA33": "You used the pistol, and your target used chainmail. You lost.",
         "PirateDuelResultsA32": "You used the pistol, and your target backpedaled. You won.",
-        "PirateDuelResultsD21": "You tried to sidestep, and the pirate used the scimitar. You lost.",
+        "PirateDuelResultsD21": "You sidestepped, and the pirate used the scimitar. You lost.",
         "PirateDuelResultsD23": "You used chainmail, and the pirate used the scimitar. You won.",
         "PirateDuelResultsD22": "You backpedaled, and the pirate used the scimitar. You won.",
         "PirateDuelResultsD11": "You sidestepped, and the pirate used the rapier. You won.",
