@@ -463,7 +463,7 @@ function refresh(d) {
 		if (waitingForKey) {
 			console.clear();
 			displayHeader();
-            console.log("Keybinds:\n  c		convert files and exit this tool\n  v		compare version numbers\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  h             open latest release in browser\n  e		exit this tool");
+            console.log("Keybinds:\n  c		convert files\n  v		compare version numbers\n  r		revert any conversions done\n  p		repair a broken installation\n  a		switch path\n  h             open latest release in browser\n  e		exit this tool");
 			waitingForKey = false;
 		} else if (ynPrompt) {
 			switch(d.toString().trim()) {
