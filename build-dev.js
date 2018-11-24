@@ -7,7 +7,7 @@ compile({
     fakeArgv: 'production',
     loglevel: 'silent',
     target: 'windows-x64',
-    resources: './config.js'
+    resources: './database.json'
 }).then(() => {
     console.log('Finished windows-x64');
 });

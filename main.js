@@ -221,6 +221,7 @@ function lower(pp) {
 			parser.parseString(data, function (err, result) {
 				if (fn === "Game.BACKUP") {
 					for (var i in result["Entries"]["Entry"]) {
+                        if (typeof result["Entries"]["Entry"][i]["Text"][0] !== "string") continue;
 						if (db.forceChanges[result["Entries"]["Entry"][i]["id"][0]]) {
 							log.debug('Overriding data for entry %s in Game.xml', result["Entries"]["Entry"][i]["id"][0]);
 							result["Entries"]["Entry"][i]["Text"][0] = db.forceChanges[result["Entries"]["Entry"][i]["id"][0]];
@@ -307,6 +308,7 @@ function lower(pp) {
 					}
 				} else if (fn === "Gui.BACKUP") {
 					for (var i in result["Entries"]["Entry"]) {
+                        if (typeof result["Entries"]["Entry"][i]["Text"][0] !== "string") continue;
 						if (result["Entries"]["Entry"][i]["Text"] && result["Entries"]["Entry"][i]["id"]) {
 							if (db.guiChanges[result["Entries"]["Entry"][i]["id"]]) {
 								log.debug('Overriding data for entry %s in Gui.xml', result["Entries"]["Entry"][i]['id']);

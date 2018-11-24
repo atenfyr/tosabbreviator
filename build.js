@@ -31,5 +31,5 @@ compile({
     fakeArgv: 'production',
     loglevel: (process.argv[3] || 'info'),
     target: (chosenTarget || process),
-    resources: './config.js'
+    resources: './database.json'
 });
