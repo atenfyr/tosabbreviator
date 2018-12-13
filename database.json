@@ -1,7 +1,7 @@
 {
     "version": "v3.2.2",
     "writtenFor": {
-        "v3.2.2": 10577
+        "v3.2.2": 10655
     },
     "investResults": {
         "Escort": "Escort/Trans/Consort (Hypno)",
@@ -458,7 +458,8 @@
         "murder", 
         "attack", 
         "kill", 
-        "execute", 
+        "execute",
+        "suspicious",
         "suicide", 
         "guilt", 
         "bm", 
