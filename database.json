@@ -1,7 +1,8 @@
 {
-    "version": "v3.2.2",
+    "version": "v3.2.3",
     "writtenFor": {
-        "v3.2.2": 10655
+        "v3.2.3": 10655,
+        "v3.2.2": 10577
     },
     "investResults": {
         "Escort": "Escort/Trans/Consort (Hypno)",
@@ -416,10 +417,10 @@
         "YouWereDueled": "You were pirated."
     },
     "forceChanges": {
-        "0": "Result: Mafia",
+        "0": "Result: sus",
         "1": "Result: ns/gf",
-        "2": "Result: Cult",
-        "3": "Result: SK",
+        "2": "Result: sus",
+        "3": "Result: sus",
         "24": "You were killed by the SK you visited.",
         "29": "Result: Jugg",
         "37": "Results: Framer/Vamp/Jest (possibly framed)",
